@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LaunchManager</class>
+ <widget class="QMainWindow" name="LaunchManager">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ROS2 Launch Manager</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QLabel" name="titleLabel">
+      <property name="text">
+       <string>ROS2 Launch File Manager</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="dssControlGroup">
+      <property name="title">
+       <string>DSS Controller</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QPushButton" name="btnStartDSS">
+         <property name="text">
+          <string>Start DSS Controller</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnStopDSS">
+         <property name="text">
+          <string>Stop DSS Controller</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="rtabmapGroup">
+      <property name="title">
+       <string>RTAB-Map SLAM</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="btnStartRtabmap">
+         <property name="text">
+          <string>Start RTAB-Map</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnStopRtabmap">
+         <property name="text">
+          <string>Stop RTAB-Map</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnSaveMap">
+         <property name="text">
+          <string>Save Map</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+          </string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="localizationGroup">
+      <property name="title">
+       <string>RTAB-Map Localization</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_localization">
+       <item>
+        <widget class="QPushButton" name="btnLoadMap">
+         <property name="text">
+          <string>Load Map</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+QPushButton {
+    background-color: #2196F3;
+    color: white;
+    font-weight: bold;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+          </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnStartLocalization">
+         <property name="text">
+          <string>Start Localization</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnStopLocalization">
+         <property name="text">
+          <string>Stop Localization</string>
+         </property>
+         <property name="minimumHeight">
+          <number>40</number>
+         </property>
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="customLaunchGroup">
+      <property name="title">
+       <string>Custom Launch</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="txtLaunchFile">
+           <property name="placeholderText">
+            <string>Enter launch file path...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnBrowse">
+           <property name="text">
+            <string>Browse</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="btnStartCustom">
+           <property name="text">
+            <string>Start Custom Launch</string>
+           </property>
+           <property name="minimumHeight">
+            <number>40</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnStopCustom">
+           <property name="text">
+            <string>Stop Custom Launch</string>
+           </property>
+           <property name="minimumHeight">
+            <number>40</number>
+           </property>
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="statusGroup">
+      <property name="title">
+       <string>Status Log</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTextEdit" name="txtLog">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="html">
+          <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd"&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name="qrichtext" content="1" /&gt;&lt;style type="text/css"&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=" font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;"&gt;
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"&gt;Launch Manager Ready...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnStopAll">
+        <property name="text">
+         <string>Stop All Launches</string>
+        </property>
+        <property name="minimumHeight">
+         <number>40</number>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+QPushButton {
+    background-color: #ff6b6b;
+    color: white;
+    font-weight: bold;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+         </string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
