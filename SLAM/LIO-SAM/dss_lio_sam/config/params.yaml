@@ -1,0 +1,122 @@
+/**:
+  ros__parameters:
+    # ============================================================
+    # DSS Platform LIO-SAM Configuration
+    # ============================================================
+
+    # Topics (DSS Platform)
+    pointCloudTopic: "/dss/sensor/lidar"     # DSS LiDAR point cloud topic
+    imuTopic: "/dss/sensor/imu"              # DSS IMU topic
+    odomTopic: "dss_lio_sam/odometry/imu"    # IMU odometry output topic
+    gpsTopic: "/dss/sensor/gps"              # GPS topic (optional)
+
+    # Frames (DSS Platform)
+    lidarFrame: "lidar"                      # DSS LiDAR frame
+    baselinkFrame: "base_link"               # Base link frame
+    odometryFrame: "odom"                    # Odometry frame
+    mapFrame: "map"                          # Map frame
+
+    # GPS Settings
+    useGpsElevation: false                   # Use GPS elevation
+    gpsCovThreshold: 2.0                     # GPS covariance threshold
+    poseCovThreshold: 25.0                   # Pose covariance threshold
+
+    # Save PCD Map
+    savePCD: false                           # Save PCD map
+    savePCDDirectory: "/home/amap/ros2_ws/maps/"  # PCD save directory
+
+    # ============================================================
+    # DSS LiDAR Settings
+    # ============================================================
+    # DSS uses a spinning LiDAR sensor
+    # Adjust these values based on your specific LiDAR model
+    sensor: "velodyne"                       # Sensor type: velodyne, ouster, livox, hesai
+    N_SCAN: 16                               # Number of LiDAR channels (VLP-16 = 16, VLP-32 = 32)
+    Horizon_SCAN: 1800                       # Horizontal resolution (VLP-16 = 1800)
+    downsampleRate: 1                        # Downsample rate (1 = use all scans)
+    lidarMinRange: 0.5                       # Minimum range (meters) - closer for indoor
+    lidarMaxRange: 100.0                     # Maximum range (meters)
+
+    # ============================================================
+    # DSS IMU Settings
+    # ============================================================
+    # IMU noise parameters (tune based on your IMU specifications)
+    # These values should be calibrated for your specific IMU
+    imuAccNoise: 0.01                        # Accelerometer noise (m/s^2)
+    imuGyrNoise: 0.001                       # Gyroscope noise (rad/s)
+    imuAccBiasN: 0.0001                      # Accelerometer bias random walk
+    imuGyrBiasN: 0.00001                     # Gyroscope bias random walk
+    imuGravity: 9.80511                      # Gravity value
+    imuRPYWeight: 0.01                       # IMU roll-pitch-yaw weight for initialization
+
+    # ============================================================
+    # Extrinsics: LiDAR -> IMU (DSS Platform)
+    # ============================================================
+    # LiDAR is mounted at z=1.5m above base_link
+    # Adjust these values based on your actual sensor mounting
+
+    # Rotation matrix (LiDAR to IMU) - Identity if aligned
+    extrinsicRot: [1.0, 0.0, 0.0,
+                   0.0, 1.0, 0.0,
+                   0.0, 0.0, 1.0]
+
+    # RPY (roll, pitch, yaw) in radians
+    extrinsicRPY: [0.0, 0.0, 0.0]
+
+    # Translation (LiDAR to IMU) in meters
+    # If IMU is at base_link and LiDAR is 1.5m above
+    extrinsicTrans: [0.0, 0.0, -1.5]
+
+    # ============================================================
+    # LOAM Feature Extraction
+    # ============================================================
+    edgeThreshold: 1.0                       # Edge feature threshold
+    surfThreshold: 0.1                       # Surface feature threshold
+    edgeFeatureMinValidNum: 10               # Minimum valid edge features
+    surfFeatureMinValidNum: 100              # Minimum valid surface features
+
+    # ============================================================
+    # Voxel Filter Parameters
+    # ============================================================
+    odometrySurfLeafSize: 0.4                # Odometry surface voxel size
+    mappingCornerLeafSize: 0.2               # Mapping corner voxel size
+    mappingSurfLeafSize: 0.4                 # Mapping surface voxel size
+
+    # ============================================================
+    # DSS Vehicle Motion Constraints
+    # ============================================================
+    # Non-holonomic vehicle constraints for ground vehicles
+    z_tollerance: 1000.0                     # Z-axis tolerance (high for ground vehicle)
+    rotation_tollerance: 1000.0              # Rotation tolerance
+
+    # ============================================================
+    # CPU Parameters
+    # ============================================================
+    numberOfCores: 4                         # Number of CPU cores to use
+    mappingProcessInterval: 0.15             # Mapping process interval (seconds)
+
+    # ============================================================
+    # Keyframe Settings (optimized for vehicle motion)
+    # ============================================================
+    surroundingkeyframeAddingDistThreshold: 1.0   # Add keyframe if moved > 1m
+    surroundingkeyframeAddingAngleThreshold: 0.2  # Add keyframe if rotated > 0.2 rad (~11 deg)
+    surroundingKeyframeDensity: 2.0               # Keyframe density for visualization
+    surroundingKeyframeSearchRadius: 50.0         # Keyframe search radius for map
+
+    # ============================================================
+    # Loop Closure Settings
+    # ============================================================
+    loopClosureEnableFlag: true              # Enable loop closure
+    loopClosureFrequency: 1.0                # Loop closure detection frequency (Hz)
+    surroundingKeyframeSize: 50              # Number of surrounding keyframes
+    historyKeyframeSearchRadius: 15.0        # History keyframe search radius
+    historyKeyframeSearchTimeDiff: 30.0      # Time difference threshold (seconds)
+    historyKeyframeSearchNum: 25             # Number of history keyframes to search
+    historyKeyframeFitnessScore: 0.3         # ICP fitness score threshold
+
+    # ============================================================
+    # Visualization Settings
+    # ============================================================
+    globalMapVisualizationSearchRadius: 1000.0    # Global map visualization radius
+    globalMapVisualizationPoseDensity: 10.0       # Pose density for visualization
+    globalMapVisualizationLeafSize: 1.0           # Leaf size for visualization

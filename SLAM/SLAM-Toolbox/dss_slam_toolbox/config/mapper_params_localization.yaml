@@ -1,0 +1,58 @@
+# SLAM Toolbox Configuration for DSS Platform
+# Localization mode - use saved map for localization
+
+slam_toolbox:
+  ros__parameters:
+    # ============================================================
+    # Plugin Parameters
+    # ============================================================
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    # ============================================================
+    # ROS Parameters
+    # ============================================================
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+    scan_topic: /dss/sensor/lidar_scan
+    mode: localization  # Use saved map for localization
+
+    # ============================================================
+    # Map File (set via launch argument)
+    # ============================================================
+    # map_file_name: will be set by launch file
+    # map_start_pose: [0.0, 0.0, 0.0]  # Optional initial pose
+
+    # ============================================================
+    # Localization Parameters
+    # ============================================================
+    max_laser_range: 100.0
+    minimum_travel_distance: 0.5
+    minimum_travel_heading: 0.5
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1
+    link_scan_maximum_distance: 1.5
+
+    # Disable loop closing in localization mode
+    do_loop_closing: false
+
+    # ============================================================
+    # Transform Parameters
+    # ============================================================
+    tf_buffer_duration: 30.0
+    transform_timeout: 0.2
+    transform_publish_period: 0.02
+
+    # ============================================================
+    # Other Parameters
+    # ============================================================
+    debug_logging: false
+    throttle_scans: 1
+    use_lifecycle_manager: false
+    use_sim_time: false

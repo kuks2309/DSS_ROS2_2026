@@ -23,6 +23,10 @@ class LaunchManagerNode(Node):
         self.processes = {
             'dss': None,
             'rtabmap': None,
+            'liosam': None,
+            'kissicp': None,
+            'slamtoolbox': None,
+            'slamtoolbox_loc': None,
             'localization': None,
             'custom': None
         }
@@ -31,12 +35,17 @@ class LaunchManagerNode(Node):
         self.launch_files = {
             'dss': None,  # Will be set from config or UI
             'rtabmap': None,  # Will be set from config or UI
+            'liosam': None,  # Will be set from config or UI
+            'kissicp': None,  # Will be set from config or UI
+            'slamtoolbox': None,  # Will be set from config or UI
+            'slamtoolbox_loc': None,  # Will be set from config or UI
             'localization': None,  # Will be set from config or UI
             'custom': None
         }
 
         # Store map database path
         self.map_database_path = None
+        self.slamtoolbox_map_path = None
 
         self.get_logger().info('Launch Manager Node initialized')
 
@@ -303,6 +312,19 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStopRtabmap.clicked.connect(self.on_stop_rtabmap)
         self.btnSaveMap.clicked.connect(self.on_save_map)
 
+        self.btnStartLioSam.clicked.connect(self.on_start_liosam)
+        self.btnStopLioSam.clicked.connect(self.on_stop_liosam)
+
+        self.btnStartKissIcp.clicked.connect(self.on_start_kissicp)
+        self.btnStopKissIcp.clicked.connect(self.on_stop_kissicp)
+
+        self.btnStartSlamToolbox.clicked.connect(self.on_start_slamtoolbox)
+        self.btnStopSlamToolbox.clicked.connect(self.on_stop_slamtoolbox)
+        self.btnSaveSlamToolboxMap.clicked.connect(self.on_save_slamtoolbox_map)
+        self.btnLoadSlamToolboxMap.clicked.connect(self.on_load_slamtoolbox_map)
+        self.btnStartSlamToolboxLoc.clicked.connect(self.on_start_slamtoolbox_loc)
+        self.btnStopSlamToolboxLoc.clicked.connect(self.on_stop_slamtoolbox_loc)
+
         self.btnLoadMap.clicked.connect(self.on_load_map)
         self.btnStartLocalization.clicked.connect(self.on_start_localization)
         self.btnStopLocalization.clicked.connect(self.on_stop_localization)
@@ -331,17 +353,40 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
         """Auto-detect launch files in the workspace"""
         workspace = Path('/home/amap/ros2_ws/src')
 
-        # Look for DSS controller launch file
-        dss_launch = workspace / 'dss_controller' / 'launch' / 'launch.py'
+        # Look for DSS ROS2 Bridge launch file
+        dss_launch = workspace / 'dss_ros2_bridge' / 'launch' / 'launch.py'
         if dss_launch.exists():
             self.node.launch_files['dss'] = str(dss_launch)
-            self.log(f"Found DSS launch: {dss_launch}")
+            self.log(f"Found DSS Bridge launch: {dss_launch}")
 
         # Look for RTAB-Map SLAM launch file
         rtabmap_launch = workspace / 'SLAM' / 'dss_rtabmap_slam' / 'launch' / 'rtabmap_with_rviz.launch.py'
         if rtabmap_launch.exists():
             self.node.launch_files['rtabmap'] = str(rtabmap_launch)
             self.log(f"Found RTAB-Map launch: {rtabmap_launch}")
+
+        # Look for LIO-SAM launch file
+        liosam_launch = workspace / 'SLAM' / 'LIO-SAM' / 'dss_lio_sam' / 'launch' / 'run.launch.py'
+        if liosam_launch.exists():
+            self.node.launch_files['liosam'] = str(liosam_launch)
+            self.log(f"Found LIO-SAM launch: {liosam_launch}")
+
+        # Look for KISS-ICP launch file
+        kissicp_launch = workspace / 'SLAM' / 'KISS-ICP' / 'dss_kiss_icp' / 'launch' / 'run.launch.py'
+        if kissicp_launch.exists():
+            self.node.launch_files['kissicp'] = str(kissicp_launch)
+            self.log(f"Found KISS-ICP launch: {kissicp_launch}")
+
+        # Look for SLAM Toolbox launch files
+        slamtoolbox_launch = workspace / 'SLAM' / 'SLAM-Toolbox' / 'dss_slam_toolbox' / 'launch' / 'slam_mapping.launch.py'
+        if slamtoolbox_launch.exists():
+            self.node.launch_files['slamtoolbox'] = str(slamtoolbox_launch)
+            self.log(f"Found SLAM Toolbox launch: {slamtoolbox_launch}")
+
+        slamtoolbox_loc_launch = workspace / 'SLAM' / 'SLAM-Toolbox' / 'dss_slam_toolbox' / 'launch' / 'slam_localization.launch.py'
+        if slamtoolbox_loc_launch.exists():
+            self.node.launch_files['slamtoolbox_loc'] = str(slamtoolbox_loc_launch)
+            self.log(f"Found SLAM Toolbox Localization launch: {slamtoolbox_loc_launch}")
 
         # Look for RTAB-Map Localization launch file
         localization_launch = workspace / 'SLAM' / 'dss_rtabmap_localization' / 'launch' / 'rtabmap_localization.launch.py'
@@ -376,6 +421,132 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
 
     def on_stop_rtabmap(self):
         if self.node.stop_launch_file('rtabmap'):
+            self.update_button_states()
+
+    def on_start_liosam(self):
+        if self.node.launch_files['liosam']:
+            if self.node.start_launch_file('liosam', self.node.launch_files['liosam']):
+                self.update_button_states()
+        else:
+            self.log("LIO-SAM launch file not configured!")
+            QMessageBox.warning(self, "Error", "LIO-SAM launch file not found!")
+
+    def on_stop_liosam(self):
+        if self.node.stop_launch_file('liosam'):
+            self.update_button_states()
+
+    def on_start_kissicp(self):
+        if self.node.launch_files['kissicp']:
+            # Get parameters from UI
+            rviz_enabled = 'true' if self.chkRviz.isChecked() else 'false'
+            extra_args = [f'rviz:={rviz_enabled}']
+            if self.node.start_launch_file('kissicp', self.node.launch_files['kissicp'], extra_args):
+                self.update_button_states()
+        else:
+            self.log("KISS-ICP launch file not configured!")
+            QMessageBox.warning(self, "Error", "KISS-ICP launch file not found!")
+
+    def on_stop_kissicp(self):
+        if self.node.stop_launch_file('kissicp'):
+            self.update_button_states()
+
+    def on_start_slamtoolbox(self):
+        if self.node.launch_files['slamtoolbox']:
+            if self.node.start_launch_file('slamtoolbox', self.node.launch_files['slamtoolbox']):
+                self.update_button_states()
+        else:
+            self.log("SLAM Toolbox launch file not configured!")
+            QMessageBox.warning(self, "Error", "SLAM Toolbox launch file not found!")
+
+    def on_stop_slamtoolbox(self):
+        if self.node.stop_launch_file('slamtoolbox'):
+            self.update_button_states()
+
+    def on_save_slamtoolbox_map(self):
+        """Save SLAM Toolbox map using service call"""
+        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/SLAM-Toolbox/dss_slam_toolbox/maps')
+        maps_dir.mkdir(parents=True, exist_ok=True)
+        default_path = str(maps_dir / 'slam_toolbox_map')
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save SLAM Toolbox Map",
+            default_path,
+            "All Files (*)"
+        )
+
+        if not file_path:
+            self.log("Map save cancelled")
+            return
+
+        try:
+            # Call SLAM Toolbox serialize_map service
+            import subprocess
+            result = subprocess.run(
+                ['ros2', 'service', 'call', '/slam_toolbox/serialize_map',
+                 'slam_toolbox/srv/SerializePoseGraph',
+                 f'{{"filename": "{file_path}"}}'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode == 0:
+                self.log(f"Map saved to: {file_path}.posegraph and {file_path}.data")
+                QMessageBox.information(self, "Success", f"Map saved successfully!\n\nFiles:\n{file_path}.posegraph\n{file_path}.data")
+            else:
+                self.log(f"Failed to save map: {result.stderr}")
+                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr}")
+
+        except Exception as e:
+            self.log(f"Failed to save map: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
+
+    def on_load_slamtoolbox_map(self):
+        """Load a saved SLAM Toolbox map for localization"""
+        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/SLAM-Toolbox/dss_slam_toolbox/maps')
+        maps_dir.mkdir(parents=True, exist_ok=True)
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select SLAM Toolbox Map",
+            str(maps_dir),
+            "Posegraph Files (*.posegraph);;All Files (*)"
+        )
+
+        if not file_path:
+            self.log("Map load cancelled")
+            return
+
+        # Remove .posegraph extension for SLAM Toolbox
+        if file_path.endswith('.posegraph'):
+            file_path = file_path[:-10]
+
+        if not Path(file_path + '.posegraph').exists():
+            QMessageBox.warning(self, "Error", f"Map file not found:\n{file_path}.posegraph")
+            return
+
+        self.node.slamtoolbox_map_path = file_path
+        self.log(f"SLAM Toolbox map loaded: {file_path}")
+        self.btnStartSlamToolboxLoc.setEnabled(True)
+
+        QMessageBox.information(self, "Map Loaded", f"Map loaded!\n\n{file_path}\n\nYou can now start localization.")
+
+    def on_start_slamtoolbox_loc(self):
+        if not self.node.slamtoolbox_map_path:
+            QMessageBox.warning(self, "No Map", "Please load a map first!")
+            return
+
+        if self.node.launch_files['slamtoolbox_loc']:
+            extra_args = [f'map_file:={self.node.slamtoolbox_map_path}']
+            if self.node.start_launch_file('slamtoolbox_loc', self.node.launch_files['slamtoolbox_loc'], extra_args):
+                self.update_button_states()
+        else:
+            self.log("SLAM Toolbox Localization launch file not configured!")
+            QMessageBox.warning(self, "Error", "SLAM Toolbox Localization launch file not found!")
+
+    def on_stop_slamtoolbox_loc(self):
+        if self.node.stop_launch_file('slamtoolbox_loc'):
             self.update_button_states()
 
     def on_save_map(self):
@@ -543,6 +714,27 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStartRtabmap.setEnabled(not rtabmap_running)
         self.btnStopRtabmap.setEnabled(rtabmap_running)
         self.btnSaveMap.setEnabled(rtabmap_running)  # Enable Save Map only when RTAB-Map is running
+
+        # LIO-SAM (disabled due to IMU bug)
+        liosam_running = self.node.is_running('liosam')
+        self.btnStartLioSam.setEnabled(False)  # Disabled due to DSS IMU bug
+        self.btnStopLioSam.setEnabled(liosam_running)
+
+        # KISS-ICP
+        kissicp_running = self.node.is_running('kissicp')
+        self.btnStartKissIcp.setEnabled(not kissicp_running)
+        self.btnStopKissIcp.setEnabled(kissicp_running)
+
+        # SLAM Toolbox
+        slamtoolbox_running = self.node.is_running('slamtoolbox')
+        slamtoolbox_loc_running = self.node.is_running('slamtoolbox_loc')
+        self.btnStartSlamToolbox.setEnabled(not slamtoolbox_running and not slamtoolbox_loc_running)
+        self.btnStopSlamToolbox.setEnabled(slamtoolbox_running)
+        self.btnSaveSlamToolboxMap.setEnabled(slamtoolbox_running)
+        self.btnLoadSlamToolboxMap.setEnabled(not slamtoolbox_running and not slamtoolbox_loc_running)
+        has_slamtoolbox_map = self.node.slamtoolbox_map_path is not None
+        self.btnStartSlamToolboxLoc.setEnabled(has_slamtoolbox_map and not slamtoolbox_loc_running and not slamtoolbox_running)
+        self.btnStopSlamToolboxLoc.setEnabled(slamtoolbox_loc_running)
 
         # Localization
         localization_running = self.node.is_running('localization')

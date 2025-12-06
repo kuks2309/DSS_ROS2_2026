@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'dss_controller = dss_controller.dss_controller_node:main',
+            'imu_test_node = dss_controller.imu_test_node:main',
         ],
     },
 )

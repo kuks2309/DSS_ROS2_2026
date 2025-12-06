@@ -103,7 +103,8 @@ public:
 
         sensor_msgs::msg::PointCloud2 msg;
 
-        msg.header.stamp = rclcpp::Clock().now();
+        // Use ROS2 system time for consistent sensor synchronization
+        msg.header.stamp = this->now();
         msg.header.frame_id = "lidar";
 
         msg.height = 1;
