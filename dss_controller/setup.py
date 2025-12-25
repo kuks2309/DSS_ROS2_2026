@@ -22,6 +22,10 @@ setup(
         'console_scripts': [
             'dss_controller = dss_controller.dss_controller_node:main',
             'imu_test_node = dss_controller.imu_test_node:main',
+            'imu_integration_test = dss_controller.imu_integration_test:main',
+            'imu_validation_node = dss_controller.imu_validation_node:main',
+            'imu_vss_validation_node = dss_controller.imu_vss_validation_node:main',
+            'vss_scanner_node = dss_controller.vss_scanner_node:main',
         ],
     },
 )

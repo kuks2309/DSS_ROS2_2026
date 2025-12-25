@@ -8,7 +8,6 @@ class DssDemoController : public rclcpp::Node
 {
 public:
     DssDemoController() : Node("DssDemoController") {
-
         RCLCPP_INFO(get_logger(), "DSS Demo Controller Started");
 
         //VSS 초기화

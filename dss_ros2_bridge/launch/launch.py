@@ -5,10 +5,11 @@ def generate_launch_description():
 
     # 🔥 모든 노드가 사용할 공통 파라미터
     common_params = {
-        "nats_server": "nats://172.26.160.1:4222",
-        "dss_server": "172.26.160.1",
-        "dss_port": 8886,
-        "nats_port": 4222,
+        "use_sim_time": True,   #sim time 사용
+        #"nats_server": "nats://172.25.96.1:4222",
+        #"dss_server": "172.25.96.1",
+        #"dss_port": 8886,
+        #"nats_port": 4222,
     }
 
     return LaunchDescription([
@@ -41,13 +42,23 @@ def generate_launch_description():
         ),
 
         # GPS (필요하면 활성화)
-        # Node(
-        #     package='dss_ros2_bridge',
-        #     executable='DSSToGPSNode',
-        #     name='GPS',
-        #     output='screen',
-        #     parameters=[common_params],
-        # ),
+        Node(
+            package='dss_ros2_bridge',
+            executable='DSSToROSGpsNode',
+            name='GPS',
+            output='screen',
+            parameters=[common_params],
+        ),
+        
+        # Clock (필요하면 활성화)
+        Node(
+            package='dss_ros2_bridge',
+            executable='DSSToROSClockNode',
+            name='Clock',
+            output='screen',
+            parameters=[common_params],
+        ),
+        
 
         # DSS Demo
         # Node(

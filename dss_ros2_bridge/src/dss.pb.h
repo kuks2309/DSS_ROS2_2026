@@ -46,7 +46,7 @@ struct TableStruct_dss_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[19]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[20]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -85,6 +85,9 @@ extern DSSTwistDefaultTypeInternal _DSSTwist_default_instance_;
 class DSSVector3;
 struct DSSVector3DefaultTypeInternal;
 extern DSSVector3DefaultTypeInternal _DSSVector3_default_instance_;
+class Dss;
+struct DssDefaultTypeInternal;
+extern DssDefaultTypeInternal _Dss_default_instance_;
 class DssDepthVizMessage;
 struct DssDepthVizMessageDefaultTypeInternal;
 extern DssDepthVizMessageDefaultTypeInternal _DssDepthVizMessage_default_instance_;
@@ -124,6 +127,7 @@ template<> ::dss::DSSPose* Arena::CreateMaybeMessage<::dss::DSSPose>(Arena*);
 template<> ::dss::DSSQuaternion* Arena::CreateMaybeMessage<::dss::DSSQuaternion>(Arena*);
 template<> ::dss::DSSTwist* Arena::CreateMaybeMessage<::dss::DSSTwist>(Arena*);
 template<> ::dss::DSSVector3* Arena::CreateMaybeMessage<::dss::DSSVector3>(Arena*);
+template<> ::dss::Dss* Arena::CreateMaybeMessage<::dss::Dss>(Arena*);
 template<> ::dss::DssDepthVizMessage* Arena::CreateMaybeMessage<::dss::DssDepthVizMessage>(Arena*);
 template<> ::dss::DssDepthVizPixel* Arena::CreateMaybeMessage<::dss::DssDepthVizPixel>(Arena*);
 template<> ::dss::DssEgoVehicleSnapshot* Arena::CreateMaybeMessage<::dss::DssEgoVehicleSnapshot>(Arena*);
@@ -3285,18 +3289,17 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFieldsFieldNumber = 9,
-    kFrameIdFieldNumber = 1,
-    kDataFieldNumber = 10,
-    kTimestampFieldNumber = 2,
-    kWidthFieldNumber = 3,
-    kHeightFieldNumber = 4,
-    kPointStepFieldNumber = 5,
-    kRowStepFieldNumber = 6,
-    kIsDenseFieldNumber = 7,
-    kIsBigendianFieldNumber = 8,
+    kFieldsFieldNumber = 10,
+    kDataFieldNumber = 11,
+    kHeaderFieldNumber = 1,
+    kWidthFieldNumber = 4,
+    kHeightFieldNumber = 5,
+    kPointStepFieldNumber = 6,
+    kRowStepFieldNumber = 7,
+    kIsDenseFieldNumber = 8,
+    kIsBigendianFieldNumber = 9,
   };
-  // repeated .dss.DssPointField fields = 9;
+  // repeated .dss.DssPointField fields = 10;
   int fields_size() const;
   private:
   int _internal_fields_size() const;
@@ -3314,23 +3317,7 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::dss::DssPointField >&
       fields() const;
 
-  // string frame_id = 1;
-  void clear_frame_id();
-  const std::string& frame_id() const;
-  void set_frame_id(const std::string& value);
-  void set_frame_id(std::string&& value);
-  void set_frame_id(const char* value);
-  void set_frame_id(const char* value, size_t size);
-  std::string* mutable_frame_id();
-  std::string* release_frame_id();
-  void set_allocated_frame_id(std::string* frame_id);
-  private:
-  const std::string& _internal_frame_id() const;
-  void _internal_set_frame_id(const std::string& value);
-  std::string* _internal_mutable_frame_id();
-  public:
-
-  // bytes data = 10;
+  // bytes data = 11;
   void clear_data();
   const std::string& data() const;
   void set_data(const std::string& value);
@@ -3346,16 +3333,25 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   std::string* _internal_mutable_data();
   public:
 
-  // int64 timestamp = 2;
-  void clear_timestamp();
-  ::PROTOBUF_NAMESPACE_ID::int64 timestamp() const;
-  void set_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value);
+  // .dss.DSSHeader header = 1;
+  bool has_header() const;
   private:
-  ::PROTOBUF_NAMESPACE_ID::int64 _internal_timestamp() const;
-  void _internal_set_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value);
+  bool _internal_has_header() const;
   public:
+  void clear_header();
+  const ::dss::DSSHeader& header() const;
+  ::dss::DSSHeader* release_header();
+  ::dss::DSSHeader* mutable_header();
+  void set_allocated_header(::dss::DSSHeader* header);
+  private:
+  const ::dss::DSSHeader& _internal_header() const;
+  ::dss::DSSHeader* _internal_mutable_header();
+  public:
+  void unsafe_arena_set_allocated_header(
+      ::dss::DSSHeader* header);
+  ::dss::DSSHeader* unsafe_arena_release_header();
 
-  // uint32 width = 3;
+  // uint32 width = 4;
   void clear_width();
   ::PROTOBUF_NAMESPACE_ID::uint32 width() const;
   void set_width(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -3364,7 +3360,7 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   void _internal_set_width(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 height = 4;
+  // uint32 height = 5;
   void clear_height();
   ::PROTOBUF_NAMESPACE_ID::uint32 height() const;
   void set_height(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -3373,7 +3369,7 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   void _internal_set_height(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 point_step = 5;
+  // uint32 point_step = 6;
   void clear_point_step();
   ::PROTOBUF_NAMESPACE_ID::uint32 point_step() const;
   void set_point_step(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -3382,7 +3378,7 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   void _internal_set_point_step(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 row_step = 6;
+  // uint32 row_step = 7;
   void clear_row_step();
   ::PROTOBUF_NAMESPACE_ID::uint32 row_step() const;
   void set_row_step(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -3391,7 +3387,7 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   void _internal_set_row_step(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // bool is_dense = 7;
+  // bool is_dense = 8;
   void clear_is_dense();
   bool is_dense() const;
   void set_is_dense(bool value);
@@ -3400,7 +3396,7 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   void _internal_set_is_dense(bool value);
   public:
 
-  // bool is_bigendian = 8;
+  // bool is_bigendian = 9;
   void clear_is_bigendian();
   bool is_bigendian() const;
   void set_is_bigendian(bool value);
@@ -3417,9 +3413,8 @@ class DssLidarPointCloud PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::dss::DssPointField > fields_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr frame_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
-  ::PROTOBUF_NAMESPACE_ID::int64 timestamp_;
+  ::dss::DSSHeader* header_;
   ::PROTOBUF_NAMESPACE_ID::uint32 width_;
   ::PROTOBUF_NAMESPACE_ID::uint32 height_;
   ::PROTOBUF_NAMESPACE_ID::uint32 point_step_;
@@ -4020,6 +4015,165 @@ class DssOneFrameFixedRateResult PROTOBUF_FINAL :
   public:
 
   // @@protoc_insertion_point(class_scope:dss.DssOneFrameFixedRateResult)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::int64 frame_count_;
+  double total_elapsed_time_;
+  float custom_delta_time_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_dss_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Dss PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:dss.Dss) */ {
+ public:
+  inline Dss() : Dss(nullptr) {}
+  virtual ~Dss();
+  explicit constexpr Dss(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  Dss(const Dss& from);
+  Dss(Dss&& from) noexcept
+    : Dss() {
+    *this = ::std::move(from);
+  }
+
+  inline Dss& operator=(const Dss& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Dss& operator=(Dss&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const Dss& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Dss* internal_default_instance() {
+    return reinterpret_cast<const Dss*>(
+               &_Dss_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    19;
+
+  friend void swap(Dss& a, Dss& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Dss* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Dss* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Dss* New() const final {
+    return CreateMaybeMessage<Dss>(nullptr);
+  }
+
+  Dss* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Dss>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Dss& from);
+  void MergeFrom(const Dss& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Dss* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "dss.Dss";
+  }
+  protected:
+  explicit Dss(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_dss_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFrameCountFieldNumber = 2,
+    kTotalElapsedTimeFieldNumber = 3,
+    kCustomDeltaTimeFieldNumber = 1,
+  };
+  // int64 frame_count = 2;
+  void clear_frame_count();
+  ::PROTOBUF_NAMESPACE_ID::int64 frame_count() const;
+  void set_frame_count(::PROTOBUF_NAMESPACE_ID::int64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int64 _internal_frame_count() const;
+  void _internal_set_frame_count(::PROTOBUF_NAMESPACE_ID::int64 value);
+  public:
+
+  // double total_elapsed_time = 3;
+  void clear_total_elapsed_time();
+  double total_elapsed_time() const;
+  void set_total_elapsed_time(double value);
+  private:
+  double _internal_total_elapsed_time() const;
+  void _internal_set_total_elapsed_time(double value);
+  public:
+
+  // float custom_delta_time = 1;
+  void clear_custom_delta_time();
+  float custom_delta_time() const;
+  void set_custom_delta_time(float value);
+  private:
+  float _internal_custom_delta_time() const;
+  void _internal_set_custom_delta_time(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:dss.Dss)
  private:
   class _Internal;
 
@@ -7074,88 +7228,90 @@ inline void DssPointField::set_count(::PROTOBUF_NAMESPACE_ID::uint32 value) {
 
 // DssLidarPointCloud
 
-// string frame_id = 1;
-inline void DssLidarPointCloud::clear_frame_id() {
-  frame_id_.ClearToEmpty();
+// .dss.DSSHeader header = 1;
+inline bool DssLidarPointCloud::_internal_has_header() const {
+  return this != internal_default_instance() && header_ != nullptr;
 }
-inline const std::string& DssLidarPointCloud::frame_id() const {
-  // @@protoc_insertion_point(field_get:dss.DssLidarPointCloud.frame_id)
-  return _internal_frame_id();
+inline bool DssLidarPointCloud::has_header() const {
+  return _internal_has_header();
 }
-inline void DssLidarPointCloud::set_frame_id(const std::string& value) {
-  _internal_set_frame_id(value);
-  // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.frame_id)
+inline void DssLidarPointCloud::clear_header() {
+  if (GetArena() == nullptr && header_ != nullptr) {
+    delete header_;
+  }
+  header_ = nullptr;
 }
-inline std::string* DssLidarPointCloud::mutable_frame_id() {
-  // @@protoc_insertion_point(field_mutable:dss.DssLidarPointCloud.frame_id)
-  return _internal_mutable_frame_id();
+inline const ::dss::DSSHeader& DssLidarPointCloud::_internal_header() const {
+  const ::dss::DSSHeader* p = header_;
+  return p != nullptr ? *p : reinterpret_cast<const ::dss::DSSHeader&>(
+      ::dss::_DSSHeader_default_instance_);
 }
-inline const std::string& DssLidarPointCloud::_internal_frame_id() const {
-  return frame_id_.Get();
+inline const ::dss::DSSHeader& DssLidarPointCloud::header() const {
+  // @@protoc_insertion_point(field_get:dss.DssLidarPointCloud.header)
+  return _internal_header();
 }
-inline void DssLidarPointCloud::_internal_set_frame_id(const std::string& value) {
-  
-  frame_id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void DssLidarPointCloud::set_frame_id(std::string&& value) {
-  
-  frame_id_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:dss.DssLidarPointCloud.frame_id)
-}
-inline void DssLidarPointCloud::set_frame_id(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  frame_id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:dss.DssLidarPointCloud.frame_id)
-}
-inline void DssLidarPointCloud::set_frame_id(const char* value,
-    size_t size) {
-  
-  frame_id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:dss.DssLidarPointCloud.frame_id)
-}
-inline std::string* DssLidarPointCloud::_internal_mutable_frame_id() {
-  
-  return frame_id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* DssLidarPointCloud::release_frame_id() {
-  // @@protoc_insertion_point(field_release:dss.DssLidarPointCloud.frame_id)
-  return frame_id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void DssLidarPointCloud::set_allocated_frame_id(std::string* frame_id) {
-  if (frame_id != nullptr) {
+inline void DssLidarPointCloud::unsafe_arena_set_allocated_header(
+    ::dss::DSSHeader* header) {
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(header_);
+  }
+  header_ = header;
+  if (header) {
     
   } else {
     
   }
-  frame_id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), frame_id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:dss.DssLidarPointCloud.frame_id)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:dss.DssLidarPointCloud.header)
 }
-
-// int64 timestamp = 2;
-inline void DssLidarPointCloud::clear_timestamp() {
-  timestamp_ = PROTOBUF_LONGLONG(0);
-}
-inline ::PROTOBUF_NAMESPACE_ID::int64 DssLidarPointCloud::_internal_timestamp() const {
-  return timestamp_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int64 DssLidarPointCloud::timestamp() const {
-  // @@protoc_insertion_point(field_get:dss.DssLidarPointCloud.timestamp)
-  return _internal_timestamp();
-}
-inline void DssLidarPointCloud::_internal_set_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value) {
+inline ::dss::DSSHeader* DssLidarPointCloud::release_header() {
   
-  timestamp_ = value;
+  ::dss::DSSHeader* temp = header_;
+  header_ = nullptr;
+  if (GetArena() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
 }
-inline void DssLidarPointCloud::set_timestamp(::PROTOBUF_NAMESPACE_ID::int64 value) {
-  _internal_set_timestamp(value);
-  // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.timestamp)
+inline ::dss::DSSHeader* DssLidarPointCloud::unsafe_arena_release_header() {
+  // @@protoc_insertion_point(field_release:dss.DssLidarPointCloud.header)
+  
+  ::dss::DSSHeader* temp = header_;
+  header_ = nullptr;
+  return temp;
+}
+inline ::dss::DSSHeader* DssLidarPointCloud::_internal_mutable_header() {
+  
+  if (header_ == nullptr) {
+    auto* p = CreateMaybeMessage<::dss::DSSHeader>(GetArena());
+    header_ = p;
+  }
+  return header_;
+}
+inline ::dss::DSSHeader* DssLidarPointCloud::mutable_header() {
+  // @@protoc_insertion_point(field_mutable:dss.DssLidarPointCloud.header)
+  return _internal_mutable_header();
+}
+inline void DssLidarPointCloud::set_allocated_header(::dss::DSSHeader* header) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
+  if (message_arena == nullptr) {
+    delete header_;
+  }
+  if (header) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(header);
+    if (message_arena != submessage_arena) {
+      header = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:dss.DssLidarPointCloud.header)
 }
 
-// uint32 width = 3;
+// uint32 width = 4;
 inline void DssLidarPointCloud::clear_width() {
   width_ = 0u;
 }
@@ -7175,7 +7331,7 @@ inline void DssLidarPointCloud::set_width(::PROTOBUF_NAMESPACE_ID::uint32 value)
   // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.width)
 }
 
-// uint32 height = 4;
+// uint32 height = 5;
 inline void DssLidarPointCloud::clear_height() {
   height_ = 0u;
 }
@@ -7195,7 +7351,7 @@ inline void DssLidarPointCloud::set_height(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.height)
 }
 
-// uint32 point_step = 5;
+// uint32 point_step = 6;
 inline void DssLidarPointCloud::clear_point_step() {
   point_step_ = 0u;
 }
@@ -7215,7 +7371,7 @@ inline void DssLidarPointCloud::set_point_step(::PROTOBUF_NAMESPACE_ID::uint32 v
   // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.point_step)
 }
 
-// uint32 row_step = 6;
+// uint32 row_step = 7;
 inline void DssLidarPointCloud::clear_row_step() {
   row_step_ = 0u;
 }
@@ -7235,7 +7391,7 @@ inline void DssLidarPointCloud::set_row_step(::PROTOBUF_NAMESPACE_ID::uint32 val
   // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.row_step)
 }
 
-// bool is_dense = 7;
+// bool is_dense = 8;
 inline void DssLidarPointCloud::clear_is_dense() {
   is_dense_ = false;
 }
@@ -7255,7 +7411,7 @@ inline void DssLidarPointCloud::set_is_dense(bool value) {
   // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.is_dense)
 }
 
-// bool is_bigendian = 8;
+// bool is_bigendian = 9;
 inline void DssLidarPointCloud::clear_is_bigendian() {
   is_bigendian_ = false;
 }
@@ -7275,7 +7431,7 @@ inline void DssLidarPointCloud::set_is_bigendian(bool value) {
   // @@protoc_insertion_point(field_set:dss.DssLidarPointCloud.is_bigendian)
 }
 
-// repeated .dss.DssPointField fields = 9;
+// repeated .dss.DssPointField fields = 10;
 inline int DssLidarPointCloud::_internal_fields_size() const {
   return fields_.size();
 }
@@ -7314,7 +7470,7 @@ DssLidarPointCloud::fields() const {
   return fields_;
 }
 
-// bytes data = 10;
+// bytes data = 11;
 inline void DssLidarPointCloud::clear_data() {
   data_.ClearToEmpty();
 }
@@ -7892,9 +8048,75 @@ inline void DssOneFrameFixedRateResult::set_total_elapsed_time(double value) {
   // @@protoc_insertion_point(field_set:dss.DssOneFrameFixedRateResult.total_elapsed_time)
 }
 
+// -------------------------------------------------------------------
+
+// Dss
+
+// float custom_delta_time = 1;
+inline void Dss::clear_custom_delta_time() {
+  custom_delta_time_ = 0;
+}
+inline float Dss::_internal_custom_delta_time() const {
+  return custom_delta_time_;
+}
+inline float Dss::custom_delta_time() const {
+  // @@protoc_insertion_point(field_get:dss.Dss.custom_delta_time)
+  return _internal_custom_delta_time();
+}
+inline void Dss::_internal_set_custom_delta_time(float value) {
+  
+  custom_delta_time_ = value;
+}
+inline void Dss::set_custom_delta_time(float value) {
+  _internal_set_custom_delta_time(value);
+  // @@protoc_insertion_point(field_set:dss.Dss.custom_delta_time)
+}
+
+// int64 frame_count = 2;
+inline void Dss::clear_frame_count() {
+  frame_count_ = PROTOBUF_LONGLONG(0);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 Dss::_internal_frame_count() const {
+  return frame_count_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int64 Dss::frame_count() const {
+  // @@protoc_insertion_point(field_get:dss.Dss.frame_count)
+  return _internal_frame_count();
+}
+inline void Dss::_internal_set_frame_count(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  
+  frame_count_ = value;
+}
+inline void Dss::set_frame_count(::PROTOBUF_NAMESPACE_ID::int64 value) {
+  _internal_set_frame_count(value);
+  // @@protoc_insertion_point(field_set:dss.Dss.frame_count)
+}
+
+// double total_elapsed_time = 3;
+inline void Dss::clear_total_elapsed_time() {
+  total_elapsed_time_ = 0;
+}
+inline double Dss::_internal_total_elapsed_time() const {
+  return total_elapsed_time_;
+}
+inline double Dss::total_elapsed_time() const {
+  // @@protoc_insertion_point(field_get:dss.Dss.total_elapsed_time)
+  return _internal_total_elapsed_time();
+}
+inline void Dss::_internal_set_total_elapsed_time(double value) {
+  
+  total_elapsed_time_ = value;
+}
+inline void Dss::set_total_elapsed_time(double value) {
+  _internal_set_total_elapsed_time(value);
+  // @@protoc_insertion_point(field_set:dss.Dss.total_elapsed_time)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

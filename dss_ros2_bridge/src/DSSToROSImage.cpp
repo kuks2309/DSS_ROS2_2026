@@ -1,28 +1,12 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include "sensor_msgs/msg/imu.hpp"
 #include <opencv2/opencv.hpp>   // JPEG 디코딩용
 #include <nats/nats.h>
-#include <functional>
-#include <vector>
-#include <memory>
-#include <string>
-#include <mutex>
-#include <thread>
-#include <chrono>
-#include <sstream>
-#include <iomanip>
-#include <iostream>
-#include <random>
 #include "dss.pb.h"
+#include "defaultGateway.h"
 #include "nlohmann/json.hpp"
 using json = nlohmann::json;
-
 #define MAX_SUBS (64)   // 동시에 최대 64개 구독 보유
-
-namespace cfg {
-//constexpr const char* kNatsUrl = "nats://172.25.96.1:4222";
-} // namespace cfg
 
 // ==================== NATS 클라이언트 보관 ====================
 struct NatsClient {
@@ -31,47 +15,24 @@ struct NatsClient {
     int                  count = 0;
 };
 
-class DSSToROSImageNode : public rclcpp::Node
-{
+class DSSToROSImageNode : public rclcpp::Node {
 public:
     using TopicHandler     = std::function<void(const std::string& subject, const char* data, int len)>;
     struct TopicCtx     { TopicHandler*     fn; };
 
     // NATS
     NatsClient nats_;
-
-    // 수명 보장 컨테이너
-    
     std::vector<std::unique_ptr<TopicHandler>>            topicHandlers_;
-    std::vector<std::unique_ptr<TopicCtx>>                  rawCtx_;
+    std::vector<std::unique_ptr<TopicCtx>>                rawCtx_;
     rclcpp::TimerBase::SharedPtr                          timer_;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_;
 
-    sensor_msgs::msg::Image createRandomImage()
-    {
-        sensor_msgs::msg::Image msg;
-
-        msg.header.stamp = rclcpp::Clock().now();
-        msg.header.frame_id = "random_camera";
-
-        msg.height = 480;
-        msg.width = 640;
-        msg.encoding = "rgb8";
-        msg.is_bigendian = false;
-        msg.step = msg.width * 3;
-
-        msg.data.resize(msg.height * msg.step);
-
-        std::mt19937 gen(std::random_device{}());
-        std::uniform_int_distribution<> dist(0, 255);
-
-        for (auto &v : msg.data)
-            v = static_cast<uint8_t>(dist(gen));
-
-        return msg;
-    }    
-    sensor_msgs::msg::Image decodeJpegToRgb8(const uint8_t* jpeg_data,size_t jpeg_size)
-    {
+    sensor_msgs::msg::Image createImage( dss::DSSImage& nats_msg) {
+         double stamp_sec = nats_msg.header().stamp();
+        
+        const uint8_t* jpeg_data = (const uint8_t*)nats_msg.data().data();
+        size_t jpeg_size = nats_msg.data().size();
+        
         sensor_msgs::msg::Image msg;
 
         // JPEG → OpenCV 이미지로 디코드 (BGR)
@@ -86,8 +47,14 @@ public:
         cv::cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
 
         // ROS 메시지에 채우기
-        msg.header.stamp = rclcpp::Clock().now();
+        rclcpp::Time ros_stamp(
+                static_cast<int64_t>(stamp_sec * 1e9),  // nanoseconds
+                RCL_ROS_TIME
+        );        
+        msg.header.stamp    = ros_stamp;
         msg.header.frame_id = "camera";
+
+        //RCLCPP_INFO(rclcpp::get_logger("image_bridge"),"Image stamp = %ld.%09u",msg.header.stamp.sec,msg.header.stamp.nanosec);        
 
         msg.height = rgb.rows;
         msg.width  = rgb.cols;
@@ -103,8 +70,7 @@ public:
 
 public:
     DSSToROSImageNode() : Node("DSSToROSImageNode") {
-        this->declare_parameter<std::string>("nats_server", "nats://127.0.0.1:4222");
-        std::string kNatsUrl = this->get_parameter("nats_server").as_string();
+        std::string kNatsUrl = "nats://" + getDefaultGateway()+ ":4222";
         RCLCPP_INFO(get_logger(), kNatsUrl.c_str());
         natsStatus s = natsConnection_ConnectTo(&nats_.conn, kNatsUrl.c_str());
         if (s != NATS_OK) {
@@ -121,7 +87,7 @@ public:
                     std::cerr << "Failed to parse DSSImage protobuf message\n";
                     return; 
                 }
-                pub_->publish(decodeJpegToRgb8( (const uint8_t*)img_msg.data().data(), img_msg.data().size()));
+                pub_->publish(createImage(img_msg));
             }
         );
         

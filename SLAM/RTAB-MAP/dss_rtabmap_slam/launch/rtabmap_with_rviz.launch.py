@@ -78,19 +78,21 @@ def generate_launch_description():
                 'Reg/Strategy': '1',  # ICP
                 'Icp/VoxelSize': '0.1',
                 'Icp/PointToPlaneK': '5',
-                'Icp/MaxCorrespondenceDistance': '3.0',  # Increase for vehicle
-                'Icp/MaxTranslation': '3.0',  # Allow up to 3m translation per frame (vehicle speed)
+                'Icp/MaxCorrespondenceDistance': '8.0',  # Increase for vehicle (30km/h+)
+                'Icp/MaxTranslation': '12.0',  # Allow up to 12m translation per frame (vehicle speed 40km/h+)
                 'Icp/MaxRotation': '3.14',  # Allow up to 180 degrees rotation per frame
-                'Icp/Iterations': '20',  # Balance between accuracy and speed
+                'Icp/Iterations': '30',  # More iterations for better convergence
                 'Icp/Epsilon': '0.001',
                 'Icp/CorrespondenceRatio': '0.2',
+                'Icp/PointToPlane': 'true',  # Use point-to-plane ICP for better accuracy
                 'Odom/Strategy': '0',  # Frame-to-Map
                 'OdomF2M/ScanSubtractRadius': '0.1',
-                'OdomF2M/ScanMaxSize': '15000',
+                'OdomF2M/ScanMaxSize': '30000',
                 'Odom/GuessMotion': 'true',  # Use previous motion as initial guess
                 'Odom/Holonomic': 'false',  # Non-holonomic constraint
                 'Odom/FillInfoData': 'true',  # Fill covariance data
                 'Odom/ScanKeyFrameThr': '0.9',  # Create keyframe when scan similarity < 90%
+                'Odom/FilteringStrategy': '1',  # Kalman filter for drift reduction
             }],
             remappings=[
                 ('scan_cloud', '/dss/sensor/lidar'),
@@ -147,6 +149,14 @@ def generate_launch_description():
                 'Optimizer/Epsilon': '0.00001',
                 'Optimizer/Iterations': '100',
                 'Optimizer/Slam2D': 'false',
+
+                # 3D Map visualization
+                'RGBD/CreateOccupancyGrid': 'true',
+                'Grid/3D': 'true',
+                'Grid/CellSize': '0.1',
+                'Grid/RangeMax': '100.0',
+                'Grid/ClusterRadius': '1.0',
+                'Grid/GroundIsObstacle': 'false',
             }],
             remappings=[
                 ('scan_cloud', '/dss/sensor/lidar'),
@@ -160,7 +170,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
-            output='screen',
+            output='log',  # Hide terminal output
             arguments=['-d', rviz_config_file],
             parameters=[{
                 'use_sim_time': use_sim_time,

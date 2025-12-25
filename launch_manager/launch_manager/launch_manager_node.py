@@ -27,6 +27,8 @@ class LaunchManagerNode(Node):
             'kissicp': None,
             'slamtoolbox': None,
             'slamtoolbox_loc': None,
+            'cartographer': None,
+            'cartographer_loc': None,
             'localization': None,
             'custom': None
         }
@@ -39,6 +41,8 @@ class LaunchManagerNode(Node):
             'kissicp': None,  # Will be set from config or UI
             'slamtoolbox': None,  # Will be set from config or UI
             'slamtoolbox_loc': None,  # Will be set from config or UI
+            'cartographer': None,  # Will be set from config or UI
+            'cartographer_loc': None,  # Will be set from config or UI
             'localization': None,  # Will be set from config or UI
             'custom': None
         }
@@ -46,6 +50,7 @@ class LaunchManagerNode(Node):
         # Store map database path
         self.map_database_path = None
         self.slamtoolbox_map_path = None
+        self.cartographer_map_path = None
 
         self.get_logger().info('Launch Manager Node initialized')
 
@@ -325,6 +330,13 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStartSlamToolboxLoc.clicked.connect(self.on_start_slamtoolbox_loc)
         self.btnStopSlamToolboxLoc.clicked.connect(self.on_stop_slamtoolbox_loc)
 
+        self.btnStartCartographer.clicked.connect(self.on_start_cartographer)
+        self.btnStopCartographer.clicked.connect(self.on_stop_cartographer)
+        self.btnSaveCartographerMap.clicked.connect(self.on_save_cartographer_map)
+        self.btnLoadCartographerMap.clicked.connect(self.on_load_cartographer_map)
+        self.btnStartCartographerLoc.clicked.connect(self.on_start_cartographer_loc)
+        self.btnStopCartographerLoc.clicked.connect(self.on_stop_cartographer_loc)
+
         self.btnLoadMap.clicked.connect(self.on_load_map)
         self.btnStartLocalization.clicked.connect(self.on_start_localization)
         self.btnStopLocalization.clicked.connect(self.on_stop_localization)
@@ -360,7 +372,7 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
             self.log(f"Found DSS Bridge launch: {dss_launch}")
 
         # Look for RTAB-Map SLAM launch file
-        rtabmap_launch = workspace / 'SLAM' / 'dss_rtabmap_slam' / 'launch' / 'rtabmap_with_rviz.launch.py'
+        rtabmap_launch = workspace / 'SLAM' / 'RTAB-MAP' / 'dss_rtabmap_slam' / 'launch' / 'rtabmap_with_rviz.launch.py'
         if rtabmap_launch.exists():
             self.node.launch_files['rtabmap'] = str(rtabmap_launch)
             self.log(f"Found RTAB-Map launch: {rtabmap_launch}")
@@ -388,8 +400,19 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
             self.node.launch_files['slamtoolbox_loc'] = str(slamtoolbox_loc_launch)
             self.log(f"Found SLAM Toolbox Localization launch: {slamtoolbox_loc_launch}")
 
+        # Look for Cartographer launch files
+        cartographer_launch = workspace / 'SLAM' / 'Cartographer' / 'dss_cartographer' / 'launch' / 'cartographer_mapping.launch.py'
+        if cartographer_launch.exists():
+            self.node.launch_files['cartographer'] = str(cartographer_launch)
+            self.log(f"Found Cartographer launch: {cartographer_launch}")
+
+        cartographer_loc_launch = workspace / 'SLAM' / 'Cartographer' / 'dss_cartographer' / 'launch' / 'cartographer_localization.launch.py'
+        if cartographer_loc_launch.exists():
+            self.node.launch_files['cartographer_loc'] = str(cartographer_loc_launch)
+            self.log(f"Found Cartographer Localization launch: {cartographer_loc_launch}")
+
         # Look for RTAB-Map Localization launch file
-        localization_launch = workspace / 'SLAM' / 'dss_rtabmap_localization' / 'launch' / 'rtabmap_localization.launch.py'
+        localization_launch = workspace / 'SLAM' / 'RTAB-MAP' / 'dss_rtabmap_localization' / 'launch' / 'rtabmap_localization.launch.py'
         if localization_launch.exists():
             self.node.launch_files['localization'] = str(localization_launch)
             self.log(f"Found Localization launch: {localization_launch}")
@@ -549,10 +572,119 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
         if self.node.stop_launch_file('slamtoolbox_loc'):
             self.update_button_states()
 
+    def on_start_cartographer(self):
+        if self.node.launch_files['cartographer']:
+            if self.node.start_launch_file('cartographer', self.node.launch_files['cartographer']):
+                self.update_button_states()
+        else:
+            self.log("Cartographer launch file not configured!")
+            QMessageBox.warning(self, "Error", "Cartographer launch file not found!")
+
+    def on_stop_cartographer(self):
+        if self.node.stop_launch_file('cartographer'):
+            self.update_button_states()
+
+    def on_save_cartographer_map(self):
+        """Save Cartographer map using finish_trajectory and write_state"""
+        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/Cartographer/dss_cartographer/maps')
+        maps_dir.mkdir(parents=True, exist_ok=True)
+        default_path = str(maps_dir / 'cartographer_map.pbstream')
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Cartographer Map",
+            default_path,
+            "PBStream Files (*.pbstream);;All Files (*)"
+        )
+
+        if not file_path:
+            self.log("Map save cancelled")
+            return
+
+        if not file_path.endswith('.pbstream'):
+            file_path += '.pbstream'
+
+        try:
+            # First finish the current trajectory
+            self.log("Finishing trajectory...")
+            result1 = subprocess.run(
+                ['ros2', 'service', 'call', '/finish_trajectory',
+                 'cartographer_ros_msgs/srv/FinishTrajectory',
+                 '{"trajectory_id": 0}'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            # Then write the state to file
+            self.log("Writing map state...")
+            result2 = subprocess.run(
+                ['ros2', 'service', 'call', '/write_state',
+                 'cartographer_ros_msgs/srv/WriteState',
+                 f'{{"filename": "{file_path}", "include_unfinished_submaps": true}}'],
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+
+            if result2.returncode == 0:
+                self.log(f"Map saved to: {file_path}")
+                QMessageBox.information(self, "Success", f"Map saved successfully!\n\nFile: {file_path}")
+            else:
+                self.log(f"Failed to save map: {result2.stderr}")
+                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result2.stderr}")
+
+        except Exception as e:
+            self.log(f"Failed to save map: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
+
+    def on_load_cartographer_map(self):
+        """Load a saved Cartographer map for localization"""
+        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/Cartographer/dss_cartographer/maps')
+        maps_dir.mkdir(parents=True, exist_ok=True)
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Cartographer Map",
+            str(maps_dir),
+            "PBStream Files (*.pbstream);;All Files (*)"
+        )
+
+        if not file_path:
+            self.log("Map load cancelled")
+            return
+
+        if not Path(file_path).exists():
+            QMessageBox.warning(self, "Error", f"Map file not found:\n{file_path}")
+            return
+
+        self.node.cartographer_map_path = file_path
+        self.log(f"Cartographer map loaded: {file_path}")
+        self.btnStartCartographerLoc.setEnabled(True)
+
+        QMessageBox.information(self, "Map Loaded", f"Map loaded!\n\n{file_path}\n\nYou can now start localization.")
+
+    def on_start_cartographer_loc(self):
+        if not self.node.cartographer_map_path:
+            QMessageBox.warning(self, "No Map", "Please load a map first!")
+            return
+
+        if self.node.launch_files['cartographer_loc']:
+            extra_args = [f'map_file:={self.node.cartographer_map_path}']
+            if self.node.start_launch_file('cartographer_loc', self.node.launch_files['cartographer_loc'], extra_args):
+                self.update_button_states()
+        else:
+            self.log("Cartographer Localization launch file not configured!")
+            QMessageBox.warning(self, "Error", "Cartographer Localization launch file not found!")
+
+    def on_stop_cartographer_loc(self):
+        if self.node.stop_launch_file('cartographer_loc'):
+            self.update_button_states()
+
     def on_save_map(self):
         """Save RTAB-Map database"""
         # Ask user for save location
-        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/dss_rtabmap_localization/maps')
+        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/RTAB-MAP/dss_rtabmap_localization/maps')
         maps_dir.mkdir(parents=True, exist_ok=True)
         default_path = str(maps_dir / 'rtabmap_map.db')
         file_path, _ = QFileDialog.getSaveFileName(
@@ -607,7 +739,7 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
     def on_load_map(self):
         """Load a saved map for localization"""
         # Ask user to select a map file
-        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/dss_rtabmap_localization/maps')
+        maps_dir = Path('/home/amap/ros2_ws/src/SLAM/RTAB-MAP/dss_rtabmap_localization/maps')
         maps_dir.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -735,6 +867,17 @@ class LaunchManagerUI(QtWidgets.QMainWindow):
         has_slamtoolbox_map = self.node.slamtoolbox_map_path is not None
         self.btnStartSlamToolboxLoc.setEnabled(has_slamtoolbox_map and not slamtoolbox_loc_running and not slamtoolbox_running)
         self.btnStopSlamToolboxLoc.setEnabled(slamtoolbox_loc_running)
+
+        # Cartographer
+        cartographer_running = self.node.is_running('cartographer')
+        cartographer_loc_running = self.node.is_running('cartographer_loc')
+        self.btnStartCartographer.setEnabled(not cartographer_running and not cartographer_loc_running)
+        self.btnStopCartographer.setEnabled(cartographer_running)
+        self.btnSaveCartographerMap.setEnabled(cartographer_running)
+        self.btnLoadCartographerMap.setEnabled(not cartographer_running and not cartographer_loc_running)
+        has_cartographer_map = self.node.cartographer_map_path is not None
+        self.btnStartCartographerLoc.setEnabled(has_cartographer_map and not cartographer_loc_running and not cartographer_running)
+        self.btnStopCartographerLoc.setEnabled(cartographer_loc_running)
 
         # Localization
         localization_running = self.node.is_running('localization')

@@ -116,7 +116,20 @@ class DSSVssClient:
     # -------------------------------------------------------
     async def _subscribe_async(self, subject, callback):
         async def handler(msg: Msg):
-            callback(msg.subject, msg.data.decode())
+            try:
+                # Try UTF-8 decode first (for text/JSON data)
+                callback(msg.subject, msg.data.decode())
+            except UnicodeDecodeError:
+                # Binary data (protobuf) - pass as hex representation
+                callback(msg.subject, f"[BINARY:{len(msg.data)}bytes]")
+
+        sid = await self.nc.subscribe(subject, cb=handler)
+        self.subscriptions.append(sid)
+
+    async def _subscribe_raw_async(self, subject, callback):
+        """Subscribe with raw bytes callback"""
+        async def handler(msg: Msg):
+            callback(msg.subject, msg.data)
 
         sid = await self.nc.subscribe(subject, cb=handler)
         self.subscriptions.append(sid)
@@ -124,5 +137,12 @@ class DSSVssClient:
     def subscribe(self, subject: str, callback):
         asyncio.run_coroutine_threadsafe(
             self._subscribe_async(subject, callback),
+            self.loop
+        )
+
+    def subscribe_raw(self, subject: str, callback):
+        """Subscribe with raw bytes callback"""
+        asyncio.run_coroutine_threadsafe(
+            self._subscribe_raw_async(subject, callback),
             self.loop
         )

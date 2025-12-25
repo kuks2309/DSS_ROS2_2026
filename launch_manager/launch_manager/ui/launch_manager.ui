@@ -533,7 +533,159 @@ QPushButton:disabled {
         </item>
        </layout>
       </widget>
-      <!-- Tab 5: RTAB-Map -->
+      <!-- Tab 5: Cartographer -->
+      <widget class="QWidget" name="tabCartographer">
+       <attribute name="title">
+        <string>Cartographer</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutCartographer">
+        <item>
+         <widget class="QGroupBox" name="cartographerInfoGroup">
+          <property name="title">
+           <string>Google Cartographer (2D LiDAR SLAM)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutCartographerInfo">
+           <item>
+            <widget class="QLabel" name="lblCartographerInfo">
+             <property name="text">
+              <string>2D SLAM with real-time loop closure, pbstream map format (LiDAR only)</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #4CAF50; font-weight: bold;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="cartographerControlGroup">
+          <property name="title">
+           <string>SLAM Control</string>
+          </property>
+          <layout class="QHBoxLayout" name="layoutCartographerButtons">
+           <item>
+            <widget class="QPushButton" name="btnStartCartographer">
+             <property name="styleSheet">
+              <string notr="true">
+QPushButton {
+    background-color: #673AB7;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+              </string>
+             </property>
+             <property name="text">
+              <string>Start Mapping</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnStopCartographer">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Stop Mapping</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnSaveCartographerMap">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">
+QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+              </string>
+             </property>
+             <property name="text">
+              <string>Save Map</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="cartographerLocGroup">
+          <property name="title">
+           <string>Localization Mode</string>
+          </property>
+          <layout class="QHBoxLayout" name="layoutCartographerLoc">
+           <item>
+            <widget class="QPushButton" name="btnLoadCartographerMap">
+             <property name="styleSheet">
+              <string notr="true">
+QPushButton {
+    background-color: #2196F3;
+    color: white;
+    font-weight: bold;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+              </string>
+             </property>
+             <property name="text">
+              <string>Load Map</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnStartCartographerLoc">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Start Localization</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnStopCartographerLoc">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Stop Localization</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacerCartographer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <!-- Tab 6: RTAB-Map -->
       <widget class="QWidget" name="tabRtabMap">
        <attribute name="title">
         <string>RTAB-Map</string>

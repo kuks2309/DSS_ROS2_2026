@@ -270,9 +270,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DssPointFieldDefaultTypeInterna
 constexpr DssLidarPointCloud::DssLidarPointCloud(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : fields_()
-  , frame_id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , data_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , timestamp_(PROTOBUF_LONGLONG(0))
+  , header_(nullptr)
   , width_(0u)
   , height_(0u)
   , point_step_(0u)
@@ -339,8 +338,22 @@ struct DssOneFrameFixedRateResultDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DssOneFrameFixedRateResultDefaultTypeInternal _DssOneFrameFixedRateResult_default_instance_;
+constexpr Dss::Dss(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : frame_count_(PROTOBUF_LONGLONG(0))
+  , total_elapsed_time_(0)
+  , custom_delta_time_(0){}
+struct DssDefaultTypeInternal {
+  constexpr DssDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~DssDefaultTypeInternal() {}
+  union {
+    Dss _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT DssDefaultTypeInternal _Dss_default_instance_;
 }  // namespace dss
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_dss_2eproto[19];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_dss_2eproto[20];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_dss_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_dss_2eproto = nullptr;
 
@@ -504,8 +517,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dss_2eproto::offsets[] PROTOBU
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::dss::DssLidarPointCloud, frame_id_),
-  PROTOBUF_FIELD_OFFSET(::dss::DssLidarPointCloud, timestamp_),
+  PROTOBUF_FIELD_OFFSET(::dss::DssLidarPointCloud, header_),
   PROTOBUF_FIELD_OFFSET(::dss::DssLidarPointCloud, width_),
   PROTOBUF_FIELD_OFFSET(::dss::DssLidarPointCloud, height_),
   PROTOBUF_FIELD_OFFSET(::dss::DssLidarPointCloud, point_step_),
@@ -547,6 +559,14 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_dss_2eproto::offsets[] PROTOBU
   PROTOBUF_FIELD_OFFSET(::dss::DssOneFrameFixedRateResult, custom_delta_time_),
   PROTOBUF_FIELD_OFFSET(::dss::DssOneFrameFixedRateResult, frame_count_),
   PROTOBUF_FIELD_OFFSET(::dss::DssOneFrameFixedRateResult, total_elapsed_time_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::dss::Dss, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::dss::Dss, custom_delta_time_),
+  PROTOBUF_FIELD_OFFSET(::dss::Dss, frame_count_),
+  PROTOBUF_FIELD_OFFSET(::dss::Dss, total_elapsed_time_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::dss::DssHeartbeat)},
@@ -565,9 +585,10 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 134, -1, sizeof(::dss::DSSOdom)},
   { 145, -1, sizeof(::dss::DssPointField)},
   { 154, -1, sizeof(::dss::DssLidarPointCloud)},
-  { 169, -1, sizeof(::dss::FDssWheelSnapshot)},
-  { 179, -1, sizeof(::dss::DssEgoVehicleSnapshot)},
-  { 194, -1, sizeof(::dss::DssOneFrameFixedRateResult)},
+  { 168, -1, sizeof(::dss::FDssWheelSnapshot)},
+  { 178, -1, sizeof(::dss::DssEgoVehicleSnapshot)},
+  { 193, -1, sizeof(::dss::DssOneFrameFixedRateResult)},
+  { 201, -1, sizeof(::dss::Dss)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -590,6 +611,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::dss::_FDssWheelSnapshot_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::dss::_DssEgoVehicleSnapshot_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::dss::_DssOneFrameFixedRateResult_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::dss::_Dss_default_instance_),
 };
 
 const char descriptor_table_protodef_dss_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -641,32 +663,34 @@ const char descriptor_table_protodef_dss_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "iance\030\004 \003(\001\022\034\n\005twist\030\005 \001(\0132\r.dss.DSSTwis"
   "t\022\030\n\020twist_covariance\030\006 \003(\001\"N\n\rDssPointF"
   "ield\022\014\n\004name\030\001 \001(\t\022\016\n\006offset\030\002 \001(\r\022\020\n\010da"
-  "tatype\030\003 \001(\r\022\r\n\005count\030\004 \001(\r\"\330\001\n\022DssLidar"
-  "PointCloud\022\020\n\010frame_id\030\001 \001(\t\022\021\n\ttimestam"
-  "p\030\002 \001(\003\022\r\n\005width\030\003 \001(\r\022\016\n\006height\030\004 \001(\r\022\022"
-  "\n\npoint_step\030\005 \001(\r\022\020\n\010row_step\030\006 \001(\r\022\020\n\010"
-  "is_dense\030\007 \001(\010\022\024\n\014is_bigendian\030\010 \001(\010\022\"\n\006"
-  "fields\030\t \003(\0132\022.dss.DssPointField\022\014\n\004data"
-  "\030\n \001(\014\"\232\001\n\021FDssWheelSnapshot\022\031\n\021suspensi"
-  "on_offset\030\001 \001(\002\022\034\n\024wheel_rotation_angle\030"
-  "\002 \001(\002\022\026\n\016steering_angle\030\003 \001(\002\022\024\n\014wheel_r"
-  "adius\030\004 \001(\002\022\036\n\026wheel_angular_velocity\030\005 "
-  "\001(\002\"\235\002\n\025DssEgoVehicleSnapshot\022\020\n\010speed_m"
-  "s\030\001 \001(\002\022\021\n\tspeed_kph\030\002 \001(\002\022\r\n\005steer\030\003 \001("
-  "\002\022\020\n\010throttle\030\004 \001(\002\022\r\n\005brake\030\005 \001(\002\022(\n\017li"
-  "near_velocity\030\006 \001(\0132\017.dss.DSSVector3\022)\n\020"
-  "angular_velocity\030\007 \001(\0132\017.dss.DSSVector3\022"
-  "\025\n\rselected_gear\030\010 \001(\005\022\022\n\nengine_rpm\030\t \001"
-  "(\002\022/\n\017wheel_snapshots\030\n \003(\0132\026.dss.FDssWh"
-  "eelSnapshot\"h\n\032DssOneFrameFixedRateResul"
-  "t\022\031\n\021custom_delta_time\030\001 \001(\002\022\023\n\013frame_co"
-  "unt\030\002 \001(\003\022\032\n\022total_elapsed_time\030\003 \001(\001b\006p"
-  "roto3"
+  "tatype\030\003 \001(\r\022\r\n\005count\030\004 \001(\r\"\323\001\n\022DssLidar"
+  "PointCloud\022\036\n\006header\030\001 \001(\0132\016.dss.DSSHead"
+  "er\022\r\n\005width\030\004 \001(\r\022\016\n\006height\030\005 \001(\r\022\022\n\npoi"
+  "nt_step\030\006 \001(\r\022\020\n\010row_step\030\007 \001(\r\022\020\n\010is_de"
+  "nse\030\010 \001(\010\022\024\n\014is_bigendian\030\t \001(\010\022\"\n\006field"
+  "s\030\n \003(\0132\022.dss.DssPointField\022\014\n\004data\030\013 \001("
+  "\014\"\232\001\n\021FDssWheelSnapshot\022\031\n\021suspension_of"
+  "fset\030\001 \001(\002\022\034\n\024wheel_rotation_angle\030\002 \001(\002"
+  "\022\026\n\016steering_angle\030\003 \001(\002\022\024\n\014wheel_radius"
+  "\030\004 \001(\002\022\036\n\026wheel_angular_velocity\030\005 \001(\002\"\235"
+  "\002\n\025DssEgoVehicleSnapshot\022\020\n\010speed_ms\030\001 \001"
+  "(\002\022\021\n\tspeed_kph\030\002 \001(\002\022\r\n\005steer\030\003 \001(\002\022\020\n\010"
+  "throttle\030\004 \001(\002\022\r\n\005brake\030\005 \001(\002\022(\n\017linear_"
+  "velocity\030\006 \001(\0132\017.dss.DSSVector3\022)\n\020angul"
+  "ar_velocity\030\007 \001(\0132\017.dss.DSSVector3\022\025\n\rse"
+  "lected_gear\030\010 \001(\005\022\022\n\nengine_rpm\030\t \001(\002\022/\n"
+  "\017wheel_snapshots\030\n \003(\0132\026.dss.FDssWheelSn"
+  "apshot\"h\n\032DssOneFrameFixedRateResult\022\031\n\021"
+  "custom_delta_time\030\001 \001(\002\022\023\n\013frame_count\030\002"
+  " \001(\003\022\032\n\022total_elapsed_time\030\003 \001(\001\"Q\n\003Dss\022"
+  "\031\n\021custom_delta_time\030\001 \001(\002\022\023\n\013frame_coun"
+  "t\030\002 \001(\003\022\032\n\022total_elapsed_time\030\003 \001(\001b\006pro"
+  "to3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_dss_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_dss_2eproto = {
-  false, false, 2725, descriptor_table_protodef_dss_2eproto, "dss.proto", 
-  &descriptor_table_dss_2eproto_once, nullptr, 0, 19,
+  false, false, 2803, descriptor_table_protodef_dss_2eproto, "dss.proto", 
+  &descriptor_table_dss_2eproto_once, nullptr, 0, 20,
   schemas, file_default_instances, TableStruct_dss_2eproto::offsets,
   file_level_metadata_dss_2eproto, file_level_enum_descriptors_dss_2eproto, file_level_service_descriptors_dss_2eproto,
 };
@@ -5493,8 +5517,13 @@ void DssPointField::InternalSwap(DssPointField* other) {
 
 class DssLidarPointCloud::_Internal {
  public:
+  static const ::dss::DSSHeader& header(const DssLidarPointCloud* msg);
 };
 
+const ::dss::DSSHeader&
+DssLidarPointCloud::_Internal::header(const DssLidarPointCloud* msg) {
+  return *msg->header_;
+}
 DssLidarPointCloud::DssLidarPointCloud(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
   fields_(arena) {
@@ -5506,29 +5535,28 @@ DssLidarPointCloud::DssLidarPointCloud(const DssLidarPointCloud& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       fields_(from.fields_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  frame_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_frame_id().empty()) {
-    frame_id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_frame_id(), 
-      GetArena());
-  }
   data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_data().empty()) {
     data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_data(), 
       GetArena());
   }
-  ::memcpy(&timestamp_, &from.timestamp_,
+  if (from._internal_has_header()) {
+    header_ = new ::dss::DSSHeader(*from.header_);
+  } else {
+    header_ = nullptr;
+  }
+  ::memcpy(&width_, &from.width_,
     static_cast<size_t>(reinterpret_cast<char*>(&is_bigendian_) -
-    reinterpret_cast<char*>(&timestamp_)) + sizeof(is_bigendian_));
+    reinterpret_cast<char*>(&width_)) + sizeof(is_bigendian_));
   // @@protoc_insertion_point(copy_constructor:dss.DssLidarPointCloud)
 }
 
 void DssLidarPointCloud::SharedCtor() {
-frame_id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&timestamp_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&header_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&is_bigendian_) -
-    reinterpret_cast<char*>(&timestamp_)) + sizeof(is_bigendian_));
+    reinterpret_cast<char*>(&header_)) + sizeof(is_bigendian_));
 }
 
 DssLidarPointCloud::~DssLidarPointCloud() {
@@ -5539,8 +5567,8 @@ DssLidarPointCloud::~DssLidarPointCloud() {
 
 void DssLidarPointCloud::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
-  frame_id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   data_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (this != internal_default_instance()) delete header_;
 }
 
 void DssLidarPointCloud::ArenaDtor(void* object) {
@@ -5560,11 +5588,14 @@ void DssLidarPointCloud::Clear() {
   (void) cached_has_bits;
 
   fields_.Clear();
-  frame_id_.ClearToEmpty();
   data_.ClearToEmpty();
-  ::memset(&timestamp_, 0, static_cast<size_t>(
+  if (GetArena() == nullptr && header_ != nullptr) {
+    delete header_;
+  }
+  header_ = nullptr;
+  ::memset(&width_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&is_bigendian_) -
-      reinterpret_cast<char*>(&timestamp_)) + sizeof(is_bigendian_));
+      reinterpret_cast<char*>(&width_)) + sizeof(is_bigendian_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -5575,79 +5606,70 @@ const char* DssLidarPointCloud::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string frame_id = 1;
+      // .dss.DSSHeader header = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_frame_id();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "dss.DssLidarPointCloud.frame_id"));
+          ptr = ctx->ParseMessage(_internal_mutable_header(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // int64 timestamp = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          timestamp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // uint32 width = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+      // uint32 width = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           width_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 height = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+      // uint32 height = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
           height_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 point_step = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+      // uint32 point_step = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
           point_step_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 row_step = 6;
-      case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+      // uint32 row_step = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
           row_step_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bool is_dense = 7;
-      case 7:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+      // bool is_dense = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64)) {
           is_dense_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bool is_bigendian = 8;
-      case 8:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64)) {
+      // bool is_bigendian = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 72)) {
           is_bigendian_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // repeated .dss.DssPointField fields = 9;
-      case 9:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 74)) {
+      // repeated .dss.DssPointField fields = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_fields(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<74>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<82>(ptr));
         } else goto handle_unusual;
         continue;
-      // bytes data = 10;
-      case 10:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
+      // bytes data = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 90)) {
           auto str = _internal_mutable_data();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -5681,70 +5703,62 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string frame_id = 1;
-  if (this->frame_id().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_frame_id().data(), static_cast<int>(this->_internal_frame_id().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "dss.DssLidarPointCloud.frame_id");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_frame_id(), target);
-  }
-
-  // int64 timestamp = 2;
-  if (this->timestamp() != 0) {
+  // .dss.DSSHeader header = 1;
+  if (this->has_header()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(2, this->_internal_timestamp(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        1, _Internal::header(this), target, stream);
   }
 
-  // uint32 width = 3;
+  // uint32 width = 4;
   if (this->width() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_width(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_width(), target);
   }
 
-  // uint32 height = 4;
+  // uint32 height = 5;
   if (this->height() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_height(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_height(), target);
   }
 
-  // uint32 point_step = 5;
+  // uint32 point_step = 6;
   if (this->point_step() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_point_step(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(6, this->_internal_point_step(), target);
   }
 
-  // uint32 row_step = 6;
+  // uint32 row_step = 7;
   if (this->row_step() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(6, this->_internal_row_step(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(7, this->_internal_row_step(), target);
   }
 
-  // bool is_dense = 7;
+  // bool is_dense = 8;
   if (this->is_dense() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(7, this->_internal_is_dense(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(8, this->_internal_is_dense(), target);
   }
 
-  // bool is_bigendian = 8;
+  // bool is_bigendian = 9;
   if (this->is_bigendian() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(8, this->_internal_is_bigendian(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(9, this->_internal_is_bigendian(), target);
   }
 
-  // repeated .dss.DssPointField fields = 9;
+  // repeated .dss.DssPointField fields = 10;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_fields_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(9, this->_internal_fields(i), target, stream);
+      InternalWriteMessage(10, this->_internal_fields(i), target, stream);
   }
 
-  // bytes data = 10;
+  // bytes data = 11;
   if (this->data().size() > 0) {
     target = stream->WriteBytesMaybeAliased(
-        10, this->_internal_data(), target);
+        11, this->_internal_data(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -5763,68 +5777,61 @@ size_t DssLidarPointCloud::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .dss.DssPointField fields = 9;
+  // repeated .dss.DssPointField fields = 10;
   total_size += 1UL * this->_internal_fields_size();
   for (const auto& msg : this->fields_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string frame_id = 1;
-  if (this->frame_id().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_frame_id());
-  }
-
-  // bytes data = 10;
+  // bytes data = 11;
   if (this->data().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_data());
   }
 
-  // int64 timestamp = 2;
-  if (this->timestamp() != 0) {
+  // .dss.DSSHeader header = 1;
+  if (this->has_header()) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
-        this->_internal_timestamp());
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *header_);
   }
 
-  // uint32 width = 3;
+  // uint32 width = 4;
   if (this->width() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_width());
   }
 
-  // uint32 height = 4;
+  // uint32 height = 5;
   if (this->height() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_height());
   }
 
-  // uint32 point_step = 5;
+  // uint32 point_step = 6;
   if (this->point_step() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_point_step());
   }
 
-  // uint32 row_step = 6;
+  // uint32 row_step = 7;
   if (this->row_step() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_row_step());
   }
 
-  // bool is_dense = 7;
+  // bool is_dense = 8;
   if (this->is_dense() != 0) {
     total_size += 1 + 1;
   }
 
-  // bool is_bigendian = 8;
+  // bool is_bigendian = 9;
   if (this->is_bigendian() != 0) {
     total_size += 1 + 1;
   }
@@ -5861,14 +5868,11 @@ void DssLidarPointCloud::MergeFrom(const DssLidarPointCloud& from) {
   (void) cached_has_bits;
 
   fields_.MergeFrom(from.fields_);
-  if (from.frame_id().size() > 0) {
-    _internal_set_frame_id(from._internal_frame_id());
-  }
   if (from.data().size() > 0) {
     _internal_set_data(from._internal_data());
   }
-  if (from.timestamp() != 0) {
-    _internal_set_timestamp(from._internal_timestamp());
+  if (from.has_header()) {
+    _internal_mutable_header()->::dss::DSSHeader::MergeFrom(from._internal_header());
   }
   if (from.width() != 0) {
     _internal_set_width(from._internal_width());
@@ -5912,14 +5916,13 @@ void DssLidarPointCloud::InternalSwap(DssLidarPointCloud* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   fields_.InternalSwap(&other->fields_);
-  frame_id_.Swap(&other->frame_id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   data_.Swap(&other->data_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(DssLidarPointCloud, is_bigendian_)
       + sizeof(DssLidarPointCloud::is_bigendian_)
-      - PROTOBUF_FIELD_OFFSET(DssLidarPointCloud, timestamp_)>(
-          reinterpret_cast<char*>(&timestamp_),
-          reinterpret_cast<char*>(&other->timestamp_));
+      - PROTOBUF_FIELD_OFFSET(DssLidarPointCloud, header_)>(
+          reinterpret_cast<char*>(&header_),
+          reinterpret_cast<char*>(&other->header_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata DssLidarPointCloud::GetMetadata() const {
@@ -6892,6 +6895,249 @@ void DssOneFrameFixedRateResult::InternalSwap(DssOneFrameFixedRateResult* other)
 }
 
 
+// ===================================================================
+
+class Dss::_Internal {
+ public:
+};
+
+Dss::Dss(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:dss.Dss)
+}
+Dss::Dss(const Dss& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&frame_count_, &from.frame_count_,
+    static_cast<size_t>(reinterpret_cast<char*>(&custom_delta_time_) -
+    reinterpret_cast<char*>(&frame_count_)) + sizeof(custom_delta_time_));
+  // @@protoc_insertion_point(copy_constructor:dss.Dss)
+}
+
+void Dss::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&frame_count_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&custom_delta_time_) -
+    reinterpret_cast<char*>(&frame_count_)) + sizeof(custom_delta_time_));
+}
+
+Dss::~Dss() {
+  // @@protoc_insertion_point(destructor:dss.Dss)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void Dss::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+}
+
+void Dss::ArenaDtor(void* object) {
+  Dss* _this = reinterpret_cast< Dss* >(object);
+  (void)_this;
+}
+void Dss::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void Dss::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void Dss::Clear() {
+// @@protoc_insertion_point(message_clear_start:dss.Dss)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&frame_count_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&custom_delta_time_) -
+      reinterpret_cast<char*>(&frame_count_)) + sizeof(custom_delta_time_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* Dss::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // float custom_delta_time = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 13)) {
+          custom_delta_time_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else goto handle_unusual;
+        continue;
+      // int64 frame_count = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          frame_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // double total_elapsed_time = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 25)) {
+          total_elapsed_time_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
+          ptr += sizeof(double);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* Dss::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:dss.Dss)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // float custom_delta_time = 1;
+  if (!(this->custom_delta_time() <= 0 && this->custom_delta_time() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(1, this->_internal_custom_delta_time(), target);
+  }
+
+  // int64 frame_count = 2;
+  if (this->frame_count() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(2, this->_internal_frame_count(), target);
+  }
+
+  // double total_elapsed_time = 3;
+  if (!(this->total_elapsed_time() <= 0 && this->total_elapsed_time() >= 0)) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteDoubleToArray(3, this->_internal_total_elapsed_time(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:dss.Dss)
+  return target;
+}
+
+size_t Dss::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:dss.Dss)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int64 frame_count = 2;
+  if (this->frame_count() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64Size(
+        this->_internal_frame_count());
+  }
+
+  // double total_elapsed_time = 3;
+  if (!(this->total_elapsed_time() <= 0 && this->total_elapsed_time() >= 0)) {
+    total_size += 1 + 8;
+  }
+
+  // float custom_delta_time = 1;
+  if (!(this->custom_delta_time() <= 0 && this->custom_delta_time() >= 0)) {
+    total_size += 1 + 4;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Dss::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:dss.Dss)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Dss* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Dss>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:dss.Dss)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:dss.Dss)
+    MergeFrom(*source);
+  }
+}
+
+void Dss::MergeFrom(const Dss& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:dss.Dss)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.frame_count() != 0) {
+    _internal_set_frame_count(from._internal_frame_count());
+  }
+  if (!(from.total_elapsed_time() <= 0 && from.total_elapsed_time() >= 0)) {
+    _internal_set_total_elapsed_time(from._internal_total_elapsed_time());
+  }
+  if (!(from.custom_delta_time() <= 0 && from.custom_delta_time() >= 0)) {
+    _internal_set_custom_delta_time(from._internal_custom_delta_time());
+  }
+}
+
+void Dss::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:dss.Dss)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Dss::CopyFrom(const Dss& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:dss.Dss)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Dss::IsInitialized() const {
+  return true;
+}
+
+void Dss::InternalSwap(Dss* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(Dss, custom_delta_time_)
+      + sizeof(Dss::custom_delta_time_)
+      - PROTOBUF_FIELD_OFFSET(Dss, frame_count_)>(
+          reinterpret_cast<char*>(&frame_count_),
+          reinterpret_cast<char*>(&other->frame_count_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata Dss::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace dss
 PROTOBUF_NAMESPACE_OPEN
@@ -6951,6 +7197,9 @@ template<> PROTOBUF_NOINLINE ::dss::DssEgoVehicleSnapshot* Arena::CreateMaybeMes
 }
 template<> PROTOBUF_NOINLINE ::dss::DssOneFrameFixedRateResult* Arena::CreateMaybeMessage< ::dss::DssOneFrameFixedRateResult >(Arena* arena) {
   return Arena::CreateMessageInternal< ::dss::DssOneFrameFixedRateResult >(arena);
+}
+template<> PROTOBUF_NOINLINE ::dss::Dss* Arena::CreateMaybeMessage< ::dss::Dss >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::dss::Dss >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

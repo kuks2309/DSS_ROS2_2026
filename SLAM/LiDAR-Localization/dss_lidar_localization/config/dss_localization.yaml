@@ -1,0 +1,110 @@
+# ============================================================
+# DSS Platform LiDAR Localization Configuration
+# ============================================================
+# This package uses a pre-built map (PCD file) to estimate
+# the robot's current position using NDT/GICP registration.
+#
+# NOTE: You must have a PCD map file before using this package.
+#       Create one using RTAB-Map or other SLAM tools first.
+# ============================================================
+
+/**:
+  ros__parameters:
+    # ============================================================
+    # Registration Algorithm
+    # ============================================================
+    # Options: "NDT", "GICP", "NDT_OMP", "GICP_OMP"
+    # NDT_OMP is recommended for best performance (multi-threaded)
+    registration_method: "NDT_OMP"
+
+    # Score threshold for registration (lower = stricter)
+    score_threshold: 2.0
+
+    # ============================================================
+    # NDT Parameters
+    # ============================================================
+    # Resolution of NDT voxels (meters)
+    # Smaller = more accurate but slower
+    ndt_resolution: 1.0
+
+    # Step size for NDT optimization
+    ndt_step_size: 0.1
+
+    # Number of threads for NDT_OMP (0 = use all available)
+    ndt_num_threads: 4
+
+    # Maximum iterations for NDT
+    ndt_max_iterations: 35
+
+    # Convergence threshold
+    transform_epsilon: 0.01
+
+    # ============================================================
+    # Point Cloud Preprocessing
+    # ============================================================
+    # Voxel downsampling size for input cloud (meters)
+    voxel_leaf_size: 0.2
+
+    # Range filter for input cloud (meters)
+    scan_max_range: 100.0
+    scan_min_range: 1.0
+
+    # Scan period (seconds)
+    scan_period: 0.1
+
+    # ============================================================
+    # Map Configuration
+    # ============================================================
+    # Use PCD map file
+    use_pcd_map: true
+
+    # Path to PCD map file
+    # IMPORTANT: Update this path to your actual map file!
+    map_path: ""
+
+    # ============================================================
+    # Initial Pose
+    # ============================================================
+    # Set initial pose from parameters (if false, use /initialpose topic)
+    set_initial_pose: true
+
+    # Initial position (meters)
+    initial_pose_x: 0.0
+    initial_pose_y: 0.0
+    initial_pose_z: 0.0
+
+    # Initial orientation (quaternion)
+    initial_pose_qx: 0.0
+    initial_pose_qy: 0.0
+    initial_pose_qz: 0.0
+    initial_pose_qw: 1.0
+
+    # ============================================================
+    # Optional Sensor Fusion
+    # ============================================================
+    # Use odometry for initial guess
+    use_odom: false
+
+    # Use IMU for point cloud distortion correction
+    use_imu: false
+
+    # ============================================================
+    # TF Configuration
+    # ============================================================
+    # Enable map->odom TF publishing
+    enable_map_odom_tf: true
+
+    # Frame IDs
+    global_frame_id: "map"
+    odom_frame_id: "odom"
+    base_frame_id: "base_link"
+
+    # ============================================================
+    # Publishing Options
+    # ============================================================
+    # Enable debug output
+    enable_debug: true
+
+    # Timer-based publishing (instead of event-based)
+    enable_timer_publishing: false
+    pose_publish_frequency: 30.0

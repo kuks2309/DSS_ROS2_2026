@@ -42,7 +42,7 @@ rosidl_get_typesupport_target(cpp_typesupport_target
 # 실행 파일 생성
 # ===============================
 
-add_executable(DSSToROSImageNode src/DSSToROSImage.cpp src/dss.pb.cc)
+add_executable(DSSToROSImageNode src/DSSToROSImage.cpp src/dss.pb.cc  src/defaultGateway.cpp)
 ament_target_dependencies(DSSToROSImageNode rclcpp sensor_msgs OpenCV)
 target_link_libraries(DSSToROSImageNode
   "${cpp_typesupport_target}"
@@ -51,7 +51,7 @@ target_link_libraries(DSSToROSImageNode
   protobuf::libprotobuf
 )
 
-add_executable(DSSToROSPointCloudNode src/DSSToROSPointCloud.cpp src/dss.pb.cc)
+add_executable(DSSToROSPointCloudNode src/DSSToROSPointCloud.cpp src/dss.pb.cc src/defaultGateway.cpp)
 ament_target_dependencies(DSSToROSPointCloudNode rclcpp sensor_msgs OpenCV)
 target_link_libraries(DSSToROSPointCloudNode
   "${cpp_typesupport_target}"
@@ -60,7 +60,7 @@ target_link_libraries(DSSToROSPointCloudNode
   protobuf::libprotobuf
 )
 
-add_executable(DSSToROSIMUNode src/DSSToROSIMU.cpp src/dss.pb.cc)
+add_executable(DSSToROSIMUNode src/DSSToROSIMU.cpp src/dss.pb.cc src/defaultGateway.cpp)
 ament_target_dependencies(DSSToROSIMUNode rclcpp sensor_msgs OpenCV)
 target_link_libraries(DSSToROSIMUNode
   "${cpp_typesupport_target}"
@@ -69,7 +69,28 @@ target_link_libraries(DSSToROSIMUNode
   protobuf::libprotobuf
 )
 
-add_executable(DSSDemoNode src/DSSDemo.cpp src/dss.pb.cc src/DSS.VSSClient.cpp)
+
+add_executable(DSSToROSClockNode src/DSSToROSClock.cpp src/dss.pb.cc src/defaultGateway.cpp)
+ament_target_dependencies(DSSToROSClockNode rclcpp sensor_msgs OpenCV)
+target_link_libraries(DSSToROSClockNode
+  "${cpp_typesupport_target}"
+  ${NATS_LIB}
+  Threads::Threads
+  protobuf::libprotobuf
+)
+
+
+add_executable(DSSToROSGpsNode src/DSSToROSGps.cpp src/dss.pb.cc src/defaultGateway.cpp)
+ament_target_dependencies(DSSToROSGpsNode rclcpp sensor_msgs OpenCV)
+target_link_libraries(DSSToROSGpsNode
+  "${cpp_typesupport_target}"
+  ${NATS_LIB}
+  Threads::Threads
+  protobuf::libprotobuf
+)
+
+
+add_executable(DSSDemoNode src/DSSDemo.cpp src/dss.pb.cc src/DSS.VSSClient.cpp src/defaultGateway.cpp)
 ament_target_dependencies(DSSDemoNode rclcpp sensor_msgs OpenCV)
 target_link_libraries(DSSDemoNode
   "${cpp_typesupport_target}"
@@ -86,8 +107,10 @@ target_link_libraries(DSSDemoNode
 install(
   TARGETS
     DSSToROSImageNode
+    DSSToROSClockNode
     DSSToROSPointCloudNode
     DSSToROSIMUNode
+    DSSToROSGpsNode
     DSSDemoNode
     ${cpp_typesupport_target}        # ← ★ 추가! typesupport .so 설치
   DESTINATION lib/${PROJECT_NAME}

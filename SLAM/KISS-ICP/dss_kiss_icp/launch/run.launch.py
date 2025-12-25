@@ -60,6 +60,7 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         name='rviz2',
+        output='log',  # Hide terminal output
         arguments=['-d', rviz_config_path],
         condition=IfCondition(rviz),
         parameters=[{'use_sim_time': use_sim_time}]

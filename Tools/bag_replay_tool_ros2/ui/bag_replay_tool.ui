@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BagReplayTool</class>
+ <widget class="QMainWindow" name="BagReplayTool">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1100</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Bag Replay Tool</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox_file_selection">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>1080</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>File Selection</string>
+    </property>
+    <widget class="QLineEdit" name="line_edit_file_path">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>950</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>Select a .bag file...</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_browse">
+     <property name="geometry">
+      <rect>
+       <x>970</x>
+       <y>30</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #3498db;
+    color: white;
+    font-size: 11pt;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #2980b9;
+}
+QPushButton:pressed {
+    background-color: #21618c;
+}</string>
+     </property>
+     <property name="text">
+      <string>Browse...</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_playback_controls">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>1080</width>
+      <height>120</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Playback Controls</string>
+    </property>
+    <widget class="QPushButton" name="btn_play">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>100</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    font-size: 12pt;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #229954;
+}
+QPushButton:pressed {
+    background-color: #1e8449;
+}</string>
+     </property>
+     <property name="text">
+      <string>▶ Play</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_pause">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>30</y>
+       <width>100</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #f39c12;
+    color: white;
+    font-size: 12pt;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #e67e22;
+}
+QPushButton:pressed {
+    background-color: #d35400;
+}</string>
+     </property>
+     <property name="text">
+      <string>⏸ Pause</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_stop">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>30</y>
+       <width>100</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 12pt;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #c0392b;
+}
+QPushButton:pressed {
+    background-color: #a93226;
+}</string>
+     </property>
+     <property name="text">
+      <string>⏹ Stop</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_status">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>80</y>
+       <width>320</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel {
+    font-size: 11pt;
+    font-weight: bold;
+}</string>
+     </property>
+     <property name="text">
+      <string>Status: Ready</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_playback_options">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>1080</width>
+      <height>100</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Playback Options</string>
+    </property>
+    <widget class="QCheckBox" name="checkbox_loop">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>150</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QCheckBox {
+    font-size: 10pt;
+}</string>
+     </property>
+     <property name="text">
+      <string>Loop Playback</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkbox_clock">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>200</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QCheckBox {
+    font-size: 10pt;
+}</string>
+     </property>
+     <property name="text">
+      <string>Publish Clock Time</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_rate">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>30</y>
+       <width>100</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel {
+    font-size: 10pt;
+}</string>
+     </property>
+     <property name="text">
+      <string>Playback Rate:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="spinbox_rate">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>30</y>
+       <width>100</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="value">
+      <double>1.000000000000000</double>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_topics">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>340</y>
+      <width>530</width>
+      <height>270</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Topics (check to publish)</string>
+    </property>
+    <widget class="QListWidget" name="list_topics">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>25</y>
+       <width>510</width>
+       <height>235</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QListWidget {
+    font-family: monospace;
+    font-size: 9pt;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_bag_info">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>340</y>
+      <width>540</width>
+      <height>270</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Bag File Information</string>
+    </property>
+    <widget class="QPlainTextEdit" name="text_bag_info">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>25</y>
+       <width>520</width>
+       <height>235</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPlainTextEdit {
+    font-family: monospace;
+    font-size: 9pt;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>Bag file information will be displayed here...</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1100</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_file">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_open"/>
+    <addaction name="separator"/>
+    <addaction name="action_clear_recent"/>
+   </widget>
+   <addaction name="menu_file"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_open">
+   <property name="text">
+    <string>Open Bag File...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_clear_recent">
+   <property name="text">
+    <string>Clear Recent Files</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
