@@ -620,7 +620,285 @@ QPushButton {
         </item>
        </layout>
       </widget>
-      <!-- Tab 4: Custom Launch -->
+      <!-- Tab 4: RTAB-MAP -->
+      <widget class="QWidget" name="tabRtabmap">
+       <attribute name="title">
+        <string>RTAB-MAP</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutRtabmap">
+        <item>
+         <widget class="QGroupBox" name="rtabmapInfoGroup">
+          <property name="title">
+           <string>RTAB-MAP (Real-Time Appearance-Based Mapping)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutRtabmapInfo">
+           <item>
+            <widget class="QLabel" name="lblRtabmapInfo">
+             <property name="text">
+              <string>3D LiDAR SLAM with Loop Closure and Graph Optimization</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #00BCD4; font-weight: bold;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="rtabmapSlamGroup">
+          <property name="title">
+           <string>SLAM Mode (Mapping)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutRtabmapSlamMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutRtabmapDbPath">
+             <item>
+              <widget class="QLabel" name="lblRtabmapDb">
+               <property name="text">
+                <string>Database:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="txtRtabmapDbPath">
+               <property name="placeholderText">
+                <string>~/.ros/rtabmap.db</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBrowseRtabmapDb">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Browse</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="layoutRtabmapSlam">
+             <item>
+              <widget class="QPushButton" name="btnStartRtabmap">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #00BCD4;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start RTAB-MAP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopRtabmap">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop RTAB-MAP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSaveRtabmapMap">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #8BC34A;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Save Map</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblRtabmapSlamInfo">
+             <property name="text">
+              <string>Maps are saved automatically to the database file</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="rtabmapLocGroup">
+          <property name="title">
+           <string>Localization Mode</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutRtabmapLocMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutRtabmapLocDbPath">
+             <item>
+              <widget class="QLabel" name="lblRtabmapLocDb">
+               <property name="text">
+                <string>Load Map:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="txtRtabmapLocDbPath">
+               <property name="placeholderText">
+                <string>Select rtabmap.db file...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBrowseRtabmapLocDb">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Browse</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="layoutRtabmapLoc">
+             <item>
+              <widget class="QPushButton" name="btnStartRtabmapLoc">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #FF9800;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start Localization</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopRtabmapLoc">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop Localization</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblRtabmapLocInfo">
+             <property name="text">
+              <string>Localize using a pre-built RTAB-MAP database</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacerRtabmap">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <!-- Tab 5: Custom Launch -->
       <widget class="QWidget" name="tabCustom">
        <attribute name="title">
         <string>Custom</string>

@@ -26,6 +26,7 @@ class SlamLaunchManagerNode(Node):
             'dss': None,
             'livox': None,
             'rtabmap': None,
+            'rtabmap_loc': None,
             'liosam': None,
             'liosam_loc': None,
             'dss_lio_sam': None,
@@ -41,7 +42,8 @@ class SlamLaunchManagerNode(Node):
         self.launch_files = {
             'dss': None,  # DSS ROS2 Bridge
             'livox': None,  # Livox MID-360 driver
-            'rtabmap': None,  # Will be set from config or UI
+            'rtabmap': None,  # RTAB-MAP SLAM mode
+            'rtabmap_loc': None,  # RTAB-MAP Localization mode
             'liosam': None,  # LIO-SAM SLAM mode
             'liosam_loc': None,  # LIO-SAM Localization mode
             'dss_lio_sam': None,  # DSS LIO-SAM for simulation
@@ -238,6 +240,24 @@ exec {' '.join(cmd)}
 
             # Get all processes in the tree
             all_pids = [process.pid] + get_process_tree(process.pid)
+
+            # For dss launch, also find processes by name pattern
+            if launch_key == 'dss':
+                try:
+                    # Find all dss_ros2_bridge related processes
+                    result = subprocess.run(
+                        ['pgrep', '-f', 'dss_ros2_bridge'],
+                        capture_output=True,
+                        text=True,
+                        timeout=2
+                    )
+                    dss_pids = [int(p) for p in result.stdout.strip().split('\n') if p]
+                    for pid in dss_pids:
+                        if pid not in all_pids:
+                            all_pids.append(pid)
+                except:
+                    pass
+
             self.ui.log(f"Stopping process tree: {all_pids}")
 
             # Send SIGINT to all processes
@@ -374,6 +394,17 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStartDssLioSamLoc.clicked.connect(self.on_start_dss_lio_sam_loc)
         self.btnStopDssLioSamLoc.clicked.connect(self.on_stop_dss_lio_sam_loc)
 
+        # Connect buttons - RTAB-MAP SLAM
+        self.btnBrowseRtabmapDb.clicked.connect(self.on_browse_rtabmap_db)
+        self.btnStartRtabmap.clicked.connect(self.on_start_rtabmap)
+        self.btnStopRtabmap.clicked.connect(self.on_stop_rtabmap)
+        self.btnSaveRtabmapMap.clicked.connect(self.on_save_rtabmap_map)
+
+        # Connect buttons - RTAB-MAP Localization
+        self.btnBrowseRtabmapLocDb.clicked.connect(self.on_browse_rtabmap_loc_db)
+        self.btnStartRtabmapLoc.clicked.connect(self.on_start_rtabmap_loc)
+        self.btnStopRtabmapLoc.clicked.connect(self.on_stop_rtabmap_loc)
+
         self.btnStartCustom.clicked.connect(self.on_start_custom)
         self.btnStopCustom.clicked.connect(self.on_stop_custom)
         self.btnBrowse.clicked.connect(self.on_browse)
@@ -401,10 +432,11 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
 
     def auto_detect_launch_files(self):
         """Auto-detect launch files in the workspace"""
-        workspace = Path('/home/amap/parking_robot_ros2_ws/src')
+        home = Path.home()
+        workspace = home / 'parking_robot_ros2_ws' / 'src'
 
         # Look for Livox MID-360 launch file
-        livox_launch = Path('/home/amap/ws_livox/install/livox_ros_driver2/share/livox_ros_driver2/launch_ROS2/msg_MID360_launch.py')
+        livox_launch = home / 'ws_livox' / 'install' / 'livox_ros_driver2' / 'share' / 'livox_ros_driver2' / 'launch_ROS2' / 'msg_MID360_launch.py'
         if livox_launch.exists():
             self.node.launch_files['livox'] = str(livox_launch)
             self.log(f"Found Livox MID-360 launch: {livox_launch}")
@@ -428,7 +460,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.log(f"Found RTAB-Map launch: {rtabmap_launch}")
 
         # Look for DSS ROS2 Bridge launch file
-        dss_workspace = Path('/home/amap/ros2_ws/src')
+        dss_workspace = home / 'ros2_ws' / 'src'
         dss_launch = dss_workspace / 'dss_ros2_bridge' / 'launch' / 'launch.py'
         if dss_launch.exists():
             self.node.launch_files['dss'] = str(dss_launch)
@@ -445,6 +477,18 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         if dss_lio_sam_loc_launch.exists():
             self.node.launch_files['dss_lio_sam_loc'] = str(dss_lio_sam_loc_launch)
             self.log(f"Found DSS LIO-SAM Localization launch: {dss_lio_sam_loc_launch}")
+
+        # Look for DSS RTAB-MAP SLAM launch file (for simulation)
+        dss_rtabmap_launch = dss_workspace / 'SLAM' / 'RTAB-MAP' / 'dss_rtabmap_slam' / 'launch' / 'rtabmap_with_rviz.launch.py'
+        if dss_rtabmap_launch.exists():
+            self.node.launch_files['rtabmap'] = str(dss_rtabmap_launch)
+            self.log(f"Found DSS RTAB-MAP launch: {dss_rtabmap_launch}")
+
+        # Look for DSS RTAB-MAP Localization launch file (uses rtabmap.launch.py with localization:=true)
+        dss_rtabmap_loc_launch = dss_workspace / 'SLAM' / 'RTAB-MAP' / 'dss_rtabmap_slam' / 'launch' / 'rtabmap.launch.py'
+        if dss_rtabmap_loc_launch.exists():
+            self.node.launch_files['rtabmap_loc'] = str(dss_rtabmap_loc_launch)
+            self.log(f"Found DSS RTAB-MAP Localization launch: {dss_rtabmap_loc_launch}")
 
     def log(self, message):
         """Add message to log"""
@@ -491,7 +535,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         """Save LIO-SAM map using service call with folder selection"""
         try:
             # Open folder selection dialog
-            default_path = "/home/amap/parking_robot_ros2_ws/src/SLAM/LIO-SAM/livox_lio_sam/map"
+            default_path = str(Path.home() / "parking_robot_ros2_ws/src/SLAM/LIO-SAM/livox_lio_sam/map")
             save_dir = QFileDialog.getExistingDirectory(
                 self,
                 "Select Directory to Save Map",
@@ -570,7 +614,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         """Save DSS LIO-SAM map using service call with folder selection"""
         try:
             # Open folder selection dialog
-            default_path = "/home/amap/ros2_ws/src/SLAM/LIO-SAM/dss_lio_sam/map"
+            default_path = str(Path.home() / "ros2_ws/src/SLAM/LIO-SAM/dss_lio_sam/map")
             save_dir = QFileDialog.getExistingDirectory(
                 self,
                 "Select Directory to Save Map",
@@ -646,7 +690,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
 
     def on_browse_dss_lio_sam_map(self):
         """Browse for DSS LIO-SAM map folder"""
-        default_path = "/home/amap/ros2_ws/map"
+        default_path = str(Path.home() / "ros2_ws/map")
         map_dir = QFileDialog.getExistingDirectory(
             self,
             "Select Map Folder (containing GlobalMap.pcd)",
@@ -690,6 +734,144 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         if self.node.stop_launch_file('dss_lio_sam_loc'):
             self.update_button_states()
 
+    def on_browse_rtabmap_db(self):
+        """Browse for RTAB-MAP database path (SLAM mode)"""
+        default_path = str(Path.home() / "ros2_ws/map")
+        db_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Select RTAB-MAP Database Path",
+            os.path.join(default_path, "rtabmap.db"),
+            "Database Files (*.db);;All Files (*)"
+        )
+        if db_path:
+            self.txtRtabmapDbPath.setText(db_path)
+            self.log(f"Selected RTAB-MAP database: {db_path}")
+
+    def on_start_rtabmap(self):
+        """Start RTAB-MAP SLAM mode"""
+        db_path = self.txtRtabmapDbPath.text()
+
+        if self.node.launch_files.get('rtabmap'):
+            extra_args = ['use_sim_time:=true']  # Always use simulation time
+            if db_path:
+                extra_args.append(f'database_path:={db_path}')
+                extra_args.append('delete_db_on_start:=true')
+            if self.node.start_launch_file('rtabmap', self.node.launch_files['rtabmap'], extra_args):
+                self.log(f"Started RTAB-MAP SLAM mode")
+                if db_path:
+                    self.log(f"  Database: {db_path}")
+                self.update_button_states()
+        else:
+            self.log("RTAB-MAP launch file not found!")
+            QMessageBox.warning(self, "Error", "RTAB-MAP launch file not found!")
+
+    def on_stop_rtabmap(self):
+        """Stop RTAB-MAP SLAM mode"""
+        if self.node.stop_launch_file('rtabmap'):
+            self.update_button_states()
+
+    def on_save_rtabmap_map(self):
+        """Save RTAB-MAP map by copying database file"""
+        try:
+            # Open folder selection dialog
+            default_path = str(Path.home() / "ros2_ws/map")
+            save_dir = QFileDialog.getExistingDirectory(
+                self,
+                "Select Directory to Save Map",
+                default_path,
+                QFileDialog.ShowDirsOnly
+            )
+
+            if not save_dir:
+                self.log("Map save cancelled by user")
+                return
+
+            # Ask for map name
+            from PyQt5.QtWidgets import QInputDialog
+            map_name, ok = QInputDialog.getText(
+                self,
+                "Map Name",
+                "Enter map name (without extension):",
+                text="rtabmap_map"
+            )
+
+            if not ok or not map_name:
+                self.log("Map save cancelled by user")
+                return
+
+            # Full save path
+            save_path = os.path.join(save_dir, f"{map_name}.db")
+
+            self.log(f"Saving RTAB-MAP map to: {save_path}")
+
+            # Get current database path from UI or use default
+            current_db_path = self.txtRtabmapDbPath.text()
+            if not current_db_path:
+                current_db_path = os.path.expanduser("~/.ros/rtabmap.db")
+
+            # Expand path
+            current_db_path = os.path.expanduser(current_db_path)
+
+            if not os.path.exists(current_db_path):
+                self.log(f"Database file not found: {current_db_path}")
+                QMessageBox.warning(self, "Error", f"Database file not found:\n{current_db_path}")
+                return
+
+            # Copy the database file
+            import shutil
+            shutil.copy2(current_db_path, save_path)
+
+            self.log(f"RTAB-MAP map saved successfully to: {save_path}")
+            QMessageBox.information(self, "Success", f"Map saved successfully!\n\nLocation: {save_path}")
+
+        except Exception as e:
+            self.log(f"Failed to save map: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
+
+    def on_browse_rtabmap_loc_db(self):
+        """Browse for existing RTAB-MAP database (Localization mode)"""
+        default_path = str(Path.home() / "ros2_ws/map")
+        db_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select RTAB-MAP Database for Localization",
+            default_path,
+            "Database Files (*.db);;All Files (*)"
+        )
+        if db_path:
+            if os.path.exists(db_path):
+                self.txtRtabmapLocDbPath.setText(db_path)
+                self.log(f"Selected RTAB-MAP map database: {db_path}")
+            else:
+                self.log(f"Database file not found: {db_path}")
+                QMessageBox.warning(self, "Error", f"Database file not found:\n{db_path}")
+
+    def on_start_rtabmap_loc(self):
+        """Start RTAB-MAP Localization mode"""
+        db_path = self.txtRtabmapLocDbPath.text()
+        if not db_path:
+            self.log("Please select a database file first!")
+            QMessageBox.warning(self, "Error", "Please select a database file first!")
+            return
+
+        if not os.path.exists(db_path):
+            self.log(f"Database file not found: {db_path}")
+            QMessageBox.warning(self, "Error", f"Database file not found:\n{db_path}")
+            return
+
+        if self.node.launch_files.get('rtabmap_loc'):
+            extra_args = ['localization:=true', 'use_sim_time:=true', f'database_path:={db_path}']
+            if self.node.start_launch_file('rtabmap_loc', self.node.launch_files['rtabmap_loc'], extra_args):
+                self.log(f"Started RTAB-MAP Localization with database: {db_path}")
+                self.update_button_states()
+        else:
+            self.log("RTAB-MAP Localization launch file not found!")
+            QMessageBox.warning(self, "Error", "RTAB-MAP Localization launch file not found!")
+
+    def on_stop_rtabmap_loc(self):
+        """Stop RTAB-MAP Localization mode"""
+        if self.node.stop_launch_file('rtabmap_loc'):
+            self.update_button_states()
+
     def on_start_custom(self):
         custom_path = self.txtLaunchFile.text()
         if custom_path:
@@ -708,7 +890,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select Launch File",
-            "/home/amap/parking_robot_ros2_ws/src",
+            str(Path.home() / "ros2_ws/src"),
             "Launch Files (*.py *.launch.py);;All Files (*)"
         )
         if file_path:
@@ -827,6 +1009,25 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         else:
             self.btnStartDssLioSamLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
 
+        # RTAB-MAP SLAM (for simulation - requires DSS Bridge)
+        rtabmap_running = self.node.is_running('rtabmap')
+        rtabmap_loc_running = self.node.is_running('rtabmap_loc')
+        self.btnStartRtabmap.setEnabled(dss_running and not rtabmap_running and not rtabmap_loc_running)
+        self.btnStopRtabmap.setEnabled(rtabmap_running)
+        self.btnSaveRtabmapMap.setEnabled(rtabmap_running)
+        if rtabmap_running:
+            self.btnStartRtabmap.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartRtabmap.setStyleSheet("QPushButton { background-color: #00BCD4; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
+        # RTAB-MAP Localization
+        self.btnStartRtabmapLoc.setEnabled(dss_running and not rtabmap_loc_running and not rtabmap_running)
+        self.btnStopRtabmapLoc.setEnabled(rtabmap_loc_running)
+        if rtabmap_loc_running:
+            self.btnStartRtabmapLoc.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartRtabmapLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
         # Custom
         custom_running = self.node.is_running('custom')
         self.btnStartCustom.setEnabled(not custom_running)
@@ -868,13 +1069,22 @@ def main(args=None):
 
     # Timer for ROS2 spinning
     ros_timer = QTimer()
-    ros_timer.timeout.connect(lambda: rclpy.spin_once(node, timeout_sec=0))
+
+    def spin_ros():
+        if rclpy.ok():
+            try:
+                rclpy.spin_once(node, timeout_sec=0)
+            except Exception:
+                pass
+
+    ros_timer.timeout.connect(spin_ros)
     ros_timer.start(10)  # Spin every 10ms
 
     # Run Qt event loop
     exit_code = app.exec_()
 
-    # Cleanup
+    # Cleanup - stop timer first before shutting down rclpy
+    ros_timer.stop()
     node.destroy_node()
     rclpy.shutdown()
 

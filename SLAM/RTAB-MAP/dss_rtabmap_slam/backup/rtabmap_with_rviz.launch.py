@@ -13,7 +13,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # RViz config file path - use source directory for easy editing
-    rviz_config_file = str(Path.home() / 'ros2_ws/src/SLAM/RTAB-MAP/dss_rtabmap_slam/rviz2/rtabmap_slam.rviz')
+    rviz_config_file = str(Path.home() / 'ros2_ws/src/SLAM/RTAB-MAP/dss_rtabmap_slam/config/rtabmap_slam.rviz')
 
     return LaunchDescription([
 
@@ -28,21 +28,11 @@ def generate_launch_description():
             package='tf2_ros',
             executable='static_transform_publisher',
             name='base_link_to_lidar_link',
-            arguments=['0', '0', '1.5', '0', '0', '0', 'base_link', 'lidar_link'],
+            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'lidar_link'],
             output='screen'
         ),
 
-        # Static TF: base_link -> imu_link
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='base_link_to_imu_link',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'imu_link'],
-            output='screen'
-        ),
-
-        # RTAB-Map Odometry Node (generates odometry from LiDAR + IMU)
-        # DSS IMU already provides orientation, so use directly without madgwick filter
+        # RTAB-Map Odometry Node (generates odometry from LiDAR)
         Node(
             package='rtabmap_odom',
             executable='icp_odometry',
@@ -59,12 +49,8 @@ def generate_launch_description():
                 'scan_voxel_size': 0.1,
                 'scan_normal_k': 10,
                 'scan_range_min': 0.5,
-                'scan_range_max': 50.0,
+                'scan_range_max': 40.0,
                 'scan_cloud_max_points': 30000,
-
-                # IMU parameters - use IMU orientation for gravity alignment
-                'wait_imu_to_init': True,
-                'guess_frame_id': 'odom',
 
                 # ICP Odometry parameters
                 'Reg/Strategy': '1',
@@ -77,7 +63,7 @@ def generate_launch_description():
                 'Icp/Epsilon': '0.001',
                 'Icp/PointToPlane': 'true',
                 'Icp/Iterations': '30',
-                'Icp/CorrespondenceRatio': '0.2',
+                'Icp/CorrespondenceRatio': '0.3',
                 'Odom/Strategy': '0',
                 'Odom/GuessMotion': 'true',
                 'Odom/Holonomic': 'false',
@@ -89,7 +75,6 @@ def generate_launch_description():
                 ('scan_cloud', '/points'),
                 ('scan', '/scan_not_used'),
                 ('odom', '/rtabmap/odom'),
-                ('imu', '/imu/data'),
             ]
         ),
 
@@ -125,7 +110,7 @@ def generate_launch_description():
                 'Icp/Epsilon': '0.001',
                 'Icp/PointToPlane': 'true',
                 'Icp/Iterations': '10',
-                'Icp/CorrespondenceRatio': '0.2',
+                'Icp/CorrespondenceRatio': '0.3',
 
                 # Loop closure
                 'RGBD/ProximityBySpace': 'true',
@@ -142,17 +127,9 @@ def generate_launch_description():
 
                 # Grid settings
                 'RGBD/CreateOccupancyGrid': 'true',
-                'Grid/RangeMax': '50.0',
+                'Grid/RangeMax': '40.0',
                 'Grid/RangeMin': '0.5',
                 'Grid/FromDepth': 'false',
-
-                # Ground filtering disabled - use all points for grid
-                'Grid/NormalsSegmentation': 'false',
-                'Grid/MaxObstacleHeight': '5.0',
-                'Grid/NormalK': '20',
-
-                # Grid size settings
-                'Grid/CellSize': '0.05',
             }],
             remappings=[
                 ('scan_cloud', '/points'),
