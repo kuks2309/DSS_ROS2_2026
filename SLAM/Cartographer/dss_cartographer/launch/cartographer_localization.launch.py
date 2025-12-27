@@ -4,6 +4,7 @@ Localization using pre-built map
 """
 
 import os
+from pathlib import Path
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -15,6 +16,8 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Package paths
     dss_cartographer_share = get_package_share_directory('dss_cartographer')
+    # RViz config file path - use source directory for easy editing
+    rviz_config_path = str(Path.home() / 'ros2_ws/src/SLAM/Cartographer/dss_cartographer/rviz/cartographer.rviz')
 
     # Launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
@@ -95,7 +98,6 @@ def generate_launch_description():
     )
 
     # RViz
-    rviz_config_path = os.path.join(dss_cartographer_share, 'rviz', 'cartographer.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',

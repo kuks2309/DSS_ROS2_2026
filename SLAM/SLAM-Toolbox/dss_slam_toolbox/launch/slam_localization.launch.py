@@ -4,6 +4,7 @@ Localization using a previously saved map
 """
 
 import os
+from pathlib import Path
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -15,6 +16,8 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Package paths
     dss_slam_toolbox_share = get_package_share_directory('dss_slam_toolbox')
+    # RViz config file path - use source directory for easy editing
+    rviz_config_path = str(Path.home() / 'ros2_ws/src/SLAM/SLAM-Toolbox/dss_slam_toolbox/rviz/slam_toolbox.rviz')
 
     # Launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
@@ -80,7 +83,6 @@ def generate_launch_description():
     )
 
     # RViz
-    rviz_config_path = os.path.join(dss_slam_toolbox_share, 'rviz', 'slam_toolbox.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',

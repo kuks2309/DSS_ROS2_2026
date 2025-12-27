@@ -484,8 +484,8 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.node.launch_files['rtabmap'] = str(dss_rtabmap_launch)
             self.log(f"Found DSS RTAB-MAP launch: {dss_rtabmap_launch}")
 
-        # Look for DSS RTAB-MAP Localization launch file (uses rtabmap.launch.py with localization:=true)
-        dss_rtabmap_loc_launch = dss_workspace / 'SLAM' / 'RTAB-MAP' / 'dss_rtabmap_slam' / 'launch' / 'rtabmap.launch.py'
+        # Look for DSS RTAB-MAP Localization launch file (dedicated localization package)
+        dss_rtabmap_loc_launch = dss_workspace / 'SLAM' / 'RTAB-MAP' / 'dss_rtabmap_localization' / 'launch' / 'rtabmap_localization.launch.py'
         if dss_rtabmap_loc_launch.exists():
             self.node.launch_files['rtabmap_loc'] = str(dss_rtabmap_loc_launch)
             self.log(f"Found DSS RTAB-MAP Localization launch: {dss_rtabmap_loc_launch}")
@@ -859,7 +859,8 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             return
 
         if self.node.launch_files.get('rtabmap_loc'):
-            extra_args = ['localization:=true', 'use_sim_time:=true', f'database_path:={db_path}']
+            # New dedicated localization launch file only needs database_path
+            extra_args = [f'database_path:={db_path}']
             if self.node.start_launch_file('rtabmap_loc', self.node.launch_files['rtabmap_loc'], extra_args):
                 self.log(f"Started RTAB-MAP Localization with database: {db_path}")
                 self.update_button_states()

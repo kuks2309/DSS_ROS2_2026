@@ -15,6 +15,7 @@ Requirements:
 """
 
 import os
+from pathlib import Path
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, EmitEvent, RegisterEventHandler, LogInfo, IncludeLaunchDescription
@@ -34,6 +35,9 @@ def generate_launch_description():
     pkg_share = FindPackageShare('dss_lidar_localization')
     kiss_icp_share = FindPackageShare('dss_kiss_icp')
 
+    # RViz config file path - use source directory for easy editing
+    rviz_config_file = str(Path.home() / 'ros2_ws/src/SLAM/LiDAR-Localization/dss_lidar_localization/rviz/localization.rviz')
+
     # Launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time')
     map_path = LaunchConfiguration('map_path')
@@ -47,13 +51,6 @@ def generate_launch_description():
         pkg_share,
         'config',
         'dss_localization.yaml'
-    ])
-
-    # RViz config file path
-    rviz_config_file = PathJoinSubstitution([
-        pkg_share,
-        'rviz',
-        'localization.rviz'
     ])
 
     # Static TF: base_link -> lidar (DSS LiDAR at z=1.5m)

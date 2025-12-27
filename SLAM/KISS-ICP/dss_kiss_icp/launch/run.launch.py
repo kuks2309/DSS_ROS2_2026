@@ -4,6 +4,7 @@ LiDAR-only SLAM (no IMU required)
 """
 
 import os
+from pathlib import Path
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
@@ -15,6 +16,8 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Package paths
     dss_kiss_icp_share = get_package_share_directory('dss_kiss_icp')
+    # RViz config file path - use source directory for easy editing
+    rviz_config_path = str(Path.home() / 'ros2_ws/src/SLAM/KISS-ICP/dss_kiss_icp/rviz/kiss_icp.rviz')
 
     # Launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
@@ -55,7 +58,6 @@ def generate_launch_description():
     )
 
     # RViz
-    rviz_config_path = os.path.join(dss_kiss_icp_share, 'rviz', 'kiss_icp.rviz')
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',

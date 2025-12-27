@@ -147,6 +147,8 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
+        imu_link:
+          Value: true
         lidar_link:
           Value: true
         map:
@@ -162,6 +164,8 @@ Visualization Manager:
         map:
           odom:
             base_link:
+              imu_link:
+                {}
               lidar_link:
                 {}
       Update Interval: 0
