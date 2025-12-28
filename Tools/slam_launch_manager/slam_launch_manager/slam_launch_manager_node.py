@@ -419,6 +419,14 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStopKissIcp.clicked.connect(self.on_stop_kissicp)
         self.btnSaveKissIcpMap.clicked.connect(self.on_save_kissicp_map)
 
+        # Connect buttons - SLAM-Toolbox
+        self.btnStartSlamToolbox.clicked.connect(self.on_start_slamtoolbox)
+        self.btnStopSlamToolbox.clicked.connect(self.on_stop_slamtoolbox)
+        self.btnSaveSlamToolboxMap.clicked.connect(self.on_save_slamtoolbox_map)
+        self.btnBrowseSlamToolboxMap.clicked.connect(self.on_browse_slamtoolbox_map)
+        self.btnStartSlamToolboxLoc.clicked.connect(self.on_start_slamtoolbox_loc)
+        self.btnStopSlamToolboxLoc.clicked.connect(self.on_stop_slamtoolbox_loc)
+
         self.btnStartCustom.clicked.connect(self.on_start_custom)
         self.btnStopCustom.clicked.connect(self.on_stop_custom)
         self.btnBrowse.clicked.connect(self.on_browse)
@@ -509,6 +517,17 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         if dss_kissicp_launch.exists():
             self.node.launch_files['kissicp'] = str(dss_kissicp_launch)
             self.log(f"Found DSS KISS-ICP launch: {dss_kissicp_launch}")
+
+        # Look for DSS SLAM-Toolbox launch files
+        dss_slamtoolbox_launch = dss_workspace / 'SLAM' / 'SLAM-Toolbox' / 'dss_slam_toolbox' / 'launch' / 'slam_mapping.launch.py'
+        if dss_slamtoolbox_launch.exists():
+            self.node.launch_files['slamtoolbox'] = str(dss_slamtoolbox_launch)
+            self.log(f"Found DSS SLAM-Toolbox launch: {dss_slamtoolbox_launch}")
+
+        dss_slamtoolbox_loc_launch = dss_workspace / 'SLAM' / 'SLAM-Toolbox' / 'dss_slam_toolbox' / 'launch' / 'slam_localization.launch.py'
+        if dss_slamtoolbox_loc_launch.exists():
+            self.node.launch_files['slamtoolbox_loc'] = str(dss_slamtoolbox_loc_launch)
+            self.log(f"Found DSS SLAM-Toolbox Localization launch: {dss_slamtoolbox_loc_launch}")
 
     def log(self, message):
         """Add message to log"""
@@ -966,6 +985,123 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.log(f"Failed to save map: {str(e)}")
             QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
 
+    def on_start_slamtoolbox(self):
+        """Start SLAM-Toolbox mapping mode"""
+        if self.node.launch_files.get('slamtoolbox'):
+            extra_args = ['use_sim_time:=true']
+            if self.node.start_launch_file('slamtoolbox', self.node.launch_files['slamtoolbox'], extra_args):
+                self.log("Started SLAM-Toolbox mapping")
+                self.update_button_states()
+        else:
+            self.log("SLAM-Toolbox launch file not found!")
+            QMessageBox.warning(self, "Error", "SLAM-Toolbox launch file not found!")
+
+    def on_stop_slamtoolbox(self):
+        """Stop SLAM-Toolbox mapping mode"""
+        if self.node.stop_launch_file('slamtoolbox'):
+            self.update_button_states()
+
+    def on_save_slamtoolbox_map(self):
+        """Save SLAM-Toolbox map using service call"""
+        try:
+            # Open folder selection dialog
+            default_path = str(Path.home() / "ros2_ws/map/slam_toolbox_map")
+            save_dir = QFileDialog.getExistingDirectory(
+                self,
+                "Select Directory to Save Map",
+                default_path,
+                QFileDialog.ShowDirsOnly
+            )
+
+            if not save_dir:
+                self.log("Map save cancelled by user")
+                return
+
+            # Ask for map name
+            from PyQt5.QtWidgets import QInputDialog
+            map_name, ok = QInputDialog.getText(
+                self,
+                "Map Name",
+                "Enter map name (without extension):",
+                text="slam_toolbox_map"
+            )
+
+            if not ok or not map_name:
+                self.log("Map save cancelled by user")
+                return
+
+            # Full save path (without extension - SLAM Toolbox adds .posegraph and .data)
+            save_path = os.path.join(save_dir, map_name)
+
+            self.log(f"Saving SLAM-Toolbox map to: {save_path}")
+
+            # Call SLAM-Toolbox serialize_map service
+            result = subprocess.run(
+                ['ros2', 'service', 'call', '/slam_toolbox/serialize_map',
+                 'slam_toolbox/srv/SerializePoseGraph',
+                 f'{{"filename": "{save_path}"}}'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode == 0:
+                self.log(f"SLAM-Toolbox map saved successfully to: {save_path}")
+                QMessageBox.information(self, "Success",
+                    f"Map saved successfully!\n\nLocation: {save_path}.posegraph\nand {save_path}.data")
+            else:
+                self.log(f"Failed to save map: {result.stderr}")
+                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr}")
+
+        except Exception as e:
+            self.log(f"Failed to save map: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
+
+    def on_browse_slamtoolbox_map(self):
+        """Browse for SLAM-Toolbox map file"""
+        default_path = str(Path.home() / "ros2_ws/map")
+        map_file, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select SLAM-Toolbox Map File",
+            default_path,
+            "PoseGraph Files (*.posegraph);;All Files (*)"
+        )
+        if map_file:
+            # Remove .posegraph extension for SLAM-Toolbox
+            if map_file.endswith('.posegraph'):
+                map_file = map_file[:-10]  # Remove .posegraph
+            self.txtSlamToolboxMapPath.setText(map_file)
+            self.node.slamtoolbox_map_path = map_file
+            self.log(f"Selected SLAM-Toolbox map: {map_file}")
+
+    def on_start_slamtoolbox_loc(self):
+        """Start SLAM-Toolbox localization mode"""
+        map_file = self.txtSlamToolboxMapPath.text()
+        if not map_file:
+            self.log("Please select a map file first!")
+            QMessageBox.warning(self, "Error", "Please select a map file first!")
+            return
+
+        # Check if map files exist
+        if not os.path.exists(f"{map_file}.posegraph"):
+            self.log(f"Map file not found: {map_file}.posegraph")
+            QMessageBox.warning(self, "Error", f"Map file not found:\n{map_file}.posegraph")
+            return
+
+        if self.node.launch_files.get('slamtoolbox_loc'):
+            extra_args = ['use_sim_time:=true', f'map_file:={map_file}']
+            if self.node.start_launch_file('slamtoolbox_loc', self.node.launch_files['slamtoolbox_loc'], extra_args):
+                self.log(f"Started SLAM-Toolbox Localization with map: {map_file}")
+                self.update_button_states()
+        else:
+            self.log("SLAM-Toolbox Localization launch file not found!")
+            QMessageBox.warning(self, "Error", "SLAM-Toolbox Localization launch file not found!")
+
+    def on_stop_slamtoolbox_loc(self):
+        """Stop SLAM-Toolbox localization mode"""
+        if self.node.stop_launch_file('slamtoolbox_loc'):
+            self.update_button_states()
+
     def on_start_custom(self):
         custom_path = self.txtLaunchFile.text()
         if custom_path:
@@ -1131,6 +1267,25 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.btnStartKissIcp.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
         else:
             self.btnStartKissIcp.setStyleSheet("QPushButton { background-color: #E91E63; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
+        # SLAM-Toolbox (requires DSS Bridge for simulation)
+        slamtoolbox_running = self.node.is_running('slamtoolbox')
+        slamtoolbox_loc_running = self.node.is_running('slamtoolbox_loc')
+        self.btnStartSlamToolbox.setEnabled(dss_running and not slamtoolbox_running and not slamtoolbox_loc_running)
+        self.btnStopSlamToolbox.setEnabled(slamtoolbox_running)
+        self.btnSaveSlamToolboxMap.setEnabled(slamtoolbox_running)
+        if slamtoolbox_running:
+            self.btnStartSlamToolbox.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartSlamToolbox.setStyleSheet("QPushButton { background-color: #673AB7; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
+        # SLAM-Toolbox Localization
+        self.btnStartSlamToolboxLoc.setEnabled(dss_running and not slamtoolbox_loc_running and not slamtoolbox_running)
+        self.btnStopSlamToolboxLoc.setEnabled(slamtoolbox_loc_running)
+        if slamtoolbox_loc_running:
+            self.btnStartSlamToolboxLoc.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartSlamToolboxLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
 
         # Custom
         custom_running = self.node.is_running('custom')

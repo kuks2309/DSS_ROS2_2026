@@ -1098,7 +1098,266 @@ QPushButton:disabled {
         </item>
        </layout>
       </widget>
-      <!-- Tab 6: Custom Launch -->
+      <!-- Tab 6: SLAM-Toolbox -->
+      <widget class="QWidget" name="tabSlamToolbox">
+       <attribute name="title">
+        <string>SLAM-Toolbox</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutSlamToolbox">
+        <item>
+         <widget class="QGroupBox" name="slamToolboxInfoGroup">
+          <property name="title">
+           <string>SLAM-Toolbox (2D SLAM)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutSlamToolboxInfo">
+           <item>
+            <widget class="QLabel" name="lblSlamToolboxInfo">
+             <property name="text">
+              <string>2D LiDAR SLAM - Converts 3D PointCloud to 2D LaserScan</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #673AB7; font-weight: bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblSlamToolboxDesc">
+             <property name="text">
+              <string>• Fast 2D occupancy grid mapping
+• Loop closure and graph optimization
+• Save/load pose graph for localization</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="slamToolboxSlamGroup">
+          <property name="title">
+           <string>SLAM Mode (Mapping)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutSlamToolboxSlamMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutSlamToolboxSlam">
+             <item>
+              <widget class="QPushButton" name="btnStartSlamToolbox">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #673AB7;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start SLAM-Toolbox</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopSlamToolbox">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop SLAM-Toolbox</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSaveSlamToolboxMap">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Save Map</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblSlamToolboxSlamInfo">
+             <property name="text">
+              <string>Saves map as .posegraph and .data files</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="slamToolboxLocGroup">
+          <property name="title">
+           <string>Localization Mode</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutSlamToolboxLocMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutSlamToolboxMapSelect">
+             <item>
+              <widget class="QLabel" name="lblSlamToolboxMap">
+               <property name="text">
+                <string>Map:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="txtSlamToolboxMapPath">
+               <property name="placeholderText">
+                <string>Select .posegraph map file...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBrowseSlamToolboxMap">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Browse</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="layoutSlamToolboxLoc">
+             <item>
+              <widget class="QPushButton" name="btnStartSlamToolboxLoc">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #FF9800;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start Localization</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopSlamToolboxLoc">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop Localization</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblSlamToolboxLocInfo">
+             <property name="text">
+              <string>Localize using a pre-built pose graph map</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacerSlamToolbox">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <!-- Tab 7: Custom Launch -->
       <widget class="QWidget" name="tabCustom">
        <attribute name="title">
         <string>Custom</string>
