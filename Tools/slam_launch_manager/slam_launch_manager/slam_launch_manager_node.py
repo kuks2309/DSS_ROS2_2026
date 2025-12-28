@@ -8,6 +8,7 @@ from pathlib import Path
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from sensor_msgs.msg import PointCloud2, Imu, Image, NavSatFix
 import time
 
@@ -68,15 +69,23 @@ class SlamLaunchManagerNode(Node):
         }
         self.sensor_timeout = 2.0  # seconds
 
-        # Create subscriptions for sensor topics
+        # QoS profile for sensor topics (best effort to match typical sensor publishers)
+        sensor_qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+
+        # Create subscriptions for sensor topics with appropriate QoS
         self.lidar_sub = self.create_subscription(
-            PointCloud2, '/points', self.lidar_callback, 10)
+            PointCloud2, '/dss/sensor/lidar3d', self.lidar_callback, sensor_qos)
         self.imu_sub = self.create_subscription(
-            Imu, '/imu/data', self.imu_callback, 10)
+            Imu, '/dss/sensor/imu', self.imu_callback, sensor_qos)
         self.camera_sub = self.create_subscription(
-            Image, '/dss/sensor/camera/rgb', self.camera_callback, 10)
+            Image, '/dss/sensor/camera/rgb', self.camera_callback, sensor_qos)
         self.gps_sub = self.create_subscription(
-            NavSatFix, '/dss/sensor/gps', self.gps_callback, 10)
+            NavSatFix, '/dss/sensor/gps/fix', self.gps_callback, sensor_qos)
 
         self.get_logger().info('Launch Manager Node initialized')
 
@@ -405,6 +414,11 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStartRtabmapLoc.clicked.connect(self.on_start_rtabmap_loc)
         self.btnStopRtabmapLoc.clicked.connect(self.on_stop_rtabmap_loc)
 
+        # Connect buttons - KISS-ICP
+        self.btnStartKissIcp.clicked.connect(self.on_start_kissicp)
+        self.btnStopKissIcp.clicked.connect(self.on_stop_kissicp)
+        self.btnSaveKissIcpMap.clicked.connect(self.on_save_kissicp_map)
+
         self.btnStartCustom.clicked.connect(self.on_start_custom)
         self.btnStopCustom.clicked.connect(self.on_stop_custom)
         self.btnBrowse.clicked.connect(self.on_browse)
@@ -489,6 +503,12 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         if dss_rtabmap_loc_launch.exists():
             self.node.launch_files['rtabmap_loc'] = str(dss_rtabmap_loc_launch)
             self.log(f"Found DSS RTAB-MAP Localization launch: {dss_rtabmap_loc_launch}")
+
+        # Look for DSS KISS-ICP launch file
+        dss_kissicp_launch = dss_workspace / 'SLAM' / 'KISS-ICP' / 'dss_kiss_icp' / 'launch' / 'run.launch.py'
+        if dss_kissicp_launch.exists():
+            self.node.launch_files['kissicp'] = str(dss_kissicp_launch)
+            self.log(f"Found DSS KISS-ICP launch: {dss_kissicp_launch}")
 
     def log(self, message):
         """Add message to log"""
@@ -873,6 +893,79 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         if self.node.stop_launch_file('rtabmap_loc'):
             self.update_button_states()
 
+    def on_start_kissicp(self):
+        """Start KISS-ICP odometry"""
+        if self.node.launch_files.get('kissicp'):
+            extra_args = ['use_sim_time:=true']
+            if self.node.start_launch_file('kissicp', self.node.launch_files['kissicp'], extra_args):
+                self.log("Started KISS-ICP odometry")
+                self.update_button_states()
+        else:
+            self.log("KISS-ICP launch file not found!")
+            QMessageBox.warning(self, "Error", "KISS-ICP launch file not found!")
+
+    def on_stop_kissicp(self):
+        """Stop KISS-ICP odometry"""
+        if self.node.stop_launch_file('kissicp'):
+            self.update_button_states()
+
+    def on_save_kissicp_map(self):
+        """Save KISS-ICP map by calling save_map service"""
+        try:
+            # Open folder selection dialog
+            default_path = str(Path.home() / "ros2_ws/map/kiss_icp_map")
+            save_dir = QFileDialog.getExistingDirectory(
+                self,
+                "Select Directory to Save Map",
+                default_path,
+                QFileDialog.ShowDirsOnly
+            )
+
+            if not save_dir:
+                self.log("Map save cancelled by user")
+                return
+
+            # Ask for map name
+            from PyQt5.QtWidgets import QInputDialog
+            map_name, ok = QInputDialog.getText(
+                self,
+                "Map Name",
+                "Enter map name (without extension):",
+                text="kiss_icp_map"
+            )
+
+            if not ok or not map_name:
+                self.log("Map save cancelled by user")
+                return
+
+            # Full save path
+            save_path = os.path.join(save_dir, f"{map_name}.pcd")
+
+            self.log(f"Saving KISS-ICP map to: {save_path}")
+
+            # Call KISS-ICP save service
+            result = subprocess.run(
+                ['ros2', 'service', 'call', '/kiss_icp/save_map',
+                 'std_srvs/srv/Empty', '{}'],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+
+            if result.returncode == 0:
+                self.log(f"KISS-ICP map save triggered")
+                # Note: KISS-ICP typically saves to a default location
+                # You may need to copy from default location to save_path
+                QMessageBox.information(self, "Info",
+                    f"Map save triggered.\n\nCheck KISS-ICP output for the saved map location.")
+            else:
+                self.log(f"Failed to save map: {result.stderr}")
+                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr}")
+
+        except Exception as e:
+            self.log(f"Failed to save map: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
+
     def on_start_custom(self):
         custom_path = self.txtLaunchFile.text()
         if custom_path:
@@ -1028,6 +1121,16 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.btnStartRtabmapLoc.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
         else:
             self.btnStartRtabmapLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
+        # KISS-ICP (requires DSS Bridge for simulation)
+        kissicp_running = self.node.is_running('kissicp')
+        self.btnStartKissIcp.setEnabled(dss_running and not kissicp_running)
+        self.btnStopKissIcp.setEnabled(kissicp_running)
+        self.btnSaveKissIcpMap.setEnabled(kissicp_running)
+        if kissicp_running:
+            self.btnStartKissIcp.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartKissIcp.setStyleSheet("QPushButton { background-color: #E91E63; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
 
         # Custom
         custom_running = self.node.is_running('custom')

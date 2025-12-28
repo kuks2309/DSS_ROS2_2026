@@ -62,7 +62,7 @@
 | 항목 | 기존 (예: Velodyne) | Livox MID-360 |
 |------|---------------------|---------------|
 | Point Cloud 토픽 | `/velodyne_points` | `/livox/lidar` |
-| IMU 토픽 | `/imu/data` | `/livox/imu` |
+| IMU 토픽 | `/dss/sensor/imu` | `/livox/imu` |
 | 프레임 ID | `velodyne` | `livox_frame` |
 | 스캔 패턴 | 회전식 (반복) | 비반복식 (로즈 패턴) |
 
@@ -152,7 +152,7 @@ RTAB-Map launch 파일에서 다음과 같이 토픽을 매핑합니다:
 ```python
 # 변경 전
 'scan_cloud': '/velodyne_points'
-'imu': '/imu/data'
+'imu': '/dss/sensor/imu'
 ```
 
 **Livox MID-360 기준:**
@@ -220,7 +220,7 @@ ros2 run tf2_ros static_transform_publisher \
 | 항목 | 기존 값 | 변경 값 |
 |------|---------|---------|
 | Point Cloud 토픽 | `/scan` 또는 `/velodyne_points` | `/livox/lidar` |
-| IMU 토픽 | `/imu/data` | `/livox/imu` |
+| IMU 토픽 | `/dss/sensor/imu` | `/livox/imu` |
 
 ### 2. 프레임 ID 변경
 

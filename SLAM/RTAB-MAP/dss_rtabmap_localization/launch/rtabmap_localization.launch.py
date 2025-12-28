@@ -9,7 +9,7 @@ Usage:
 
 Requirements:
     - Pre-built RTAB-Map .db file
-    - DSS simulator running with /points and /imu/data topics
+    - DSS simulator running with /points and /dss/sensor/imu topics
 """
 
 from pathlib import Path
@@ -106,10 +106,10 @@ def generate_launch_description():
                 'OdomF2M/ScanMaxSize': '30000',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('scan', '/scan_not_used'),
                 ('odom', '/rtabmap/odom'),
-                ('imu', '/imu/data'),
+                ('imu', '/dss/sensor/imu'),
             ]
         ),
 
@@ -176,7 +176,7 @@ def generate_launch_description():
                 'Grid/CellSize': '0.05',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('odom', '/rtabmap/odom'),
             ]
             # NOTE: No '-d' argument - we want to LOAD the database, not delete it!

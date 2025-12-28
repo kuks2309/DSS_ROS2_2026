@@ -58,7 +58,7 @@ def generate_launch_description():
                 'OdomF2M/ScanMaxSize': '30000',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('scan', '/scan_not_used'),  # Disable /scan subscription, use only scan_cloud
                 ('odom', '/rtabmap/odom'),  # Output to /rtabmap/odom for RTAB-MAP
             ]
@@ -118,7 +118,7 @@ def generate_launch_description():
                 'Grid/FromDepth': 'false',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('odom', '/rtabmap/odom'),
             ],
             arguments=[
@@ -138,7 +138,7 @@ def generate_launch_description():
                 'approx_sync': False,
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
             ]
         ),
 

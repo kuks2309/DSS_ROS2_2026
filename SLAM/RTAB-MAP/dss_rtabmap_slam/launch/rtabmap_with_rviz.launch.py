@@ -86,10 +86,10 @@ def generate_launch_description():
                 'OdomF2M/ScanMaxSize': '30000',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('scan', '/scan_not_used'),
                 ('odom', '/rtabmap/odom'),
-                ('imu', '/imu/data'),
+                ('imu', '/dss/sensor/imu'),
             ]
         ),
 
@@ -155,7 +155,7 @@ def generate_launch_description():
                 'Grid/CellSize': '0.05',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('odom', '/rtabmap/odom'),
             ],
             arguments=[

@@ -78,7 +78,7 @@ def generate_launch_description():
                 'OdomF2M/ScanMaxSize': '30000',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('scan', '/scan_not_used'),
                 ('odom', '/rtabmap/odom'),
             ]

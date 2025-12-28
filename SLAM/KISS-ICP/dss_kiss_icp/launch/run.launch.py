@@ -35,7 +35,7 @@ def generate_launch_description():
             {'use_sim_time': use_sim_time}
         ],
         remappings=[
-            ('pointcloud_topic', '/dss/sensor/lidar'),
+            ('pointcloud_topic', '/dss/sensor/lidar3d'),
         ]
     )
 
@@ -53,7 +53,7 @@ def generate_launch_description():
             '--pitch', '0.0',
             '--yaw', '0.0',
             '--frame-id', 'base_link',
-            '--child-frame-id', 'lidar'
+            '--child-frame-id', 'lidar_link'
         ]
     )
 

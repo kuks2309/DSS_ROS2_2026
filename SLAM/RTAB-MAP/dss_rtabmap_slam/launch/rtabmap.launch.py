@@ -59,7 +59,7 @@ def generate_launch_description():
                 'Odom/GuessMotion': 'true',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
                 ('scan', '/scan_not_used'),
             ]
         ),
@@ -87,7 +87,7 @@ def generate_launch_description():
                 'Grid/FromDepth': 'false',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
             ],
             arguments=['-d'],
         ),
@@ -115,7 +115,7 @@ def generate_launch_description():
                 'Grid/FromDepth': 'false',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
             ],
         ),
 
@@ -130,7 +130,7 @@ def generate_launch_description():
                 'frame_id': 'base_link',
             }],
             remappings=[
-                ('scan_cloud', '/points'),
+                ('scan_cloud', '/dss/sensor/lidar3d'),
             ]
         ),
 

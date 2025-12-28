@@ -100,9 +100,9 @@ public:
                 pub_->publish(CreateGPSTopic(gps_msg));
             }
         );
-        pub_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("/dss/gps", 10);
+        pub_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("/dss/sensor/gps/fix", 10);
 
-        RCLCPP_INFO(get_logger(), "[NATS]dss.sensor.gps → [ROS2]/dss/sensor/gps");
+        RCLCPP_INFO(get_logger(), "[NATS]dss.sensor.gps → [ROS2]/dss/sensor/gps/fix");
     }
 
     ~DSSToROSGpsNode() override {

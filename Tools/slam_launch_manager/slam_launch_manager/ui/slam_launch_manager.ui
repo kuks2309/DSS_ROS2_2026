@@ -271,6 +271,12 @@ QPushButton {
           <layout class="QHBoxLayout" name="layoutLioSamSlam">
            <item>
             <widget class="QPushButton" name="btnStartLioSam">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>40</height>
+              </size>
+             </property>
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -295,8 +301,21 @@ QPushButton:disabled {
            </item>
            <item>
             <widget class="QPushButton" name="btnStopLioSam">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>40</height>
+              </size>
+             </property>
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+              </string>
              </property>
              <property name="text">
               <string>Stop SLAM</string>
@@ -305,6 +324,12 @@ QPushButton:disabled {
            </item>
            <item>
             <widget class="QPushButton" name="btnSaveLioSamMap">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>40</height>
+              </size>
+             </property>
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -314,6 +339,7 @@ QPushButton {
     background-color: #4CAF50;
     color: white;
     font-weight: bold;
+    padding: 10px;
 }
 QPushButton:disabled {
     background-color: #cccccc;
@@ -337,6 +363,12 @@ QPushButton:disabled {
           <layout class="QHBoxLayout" name="layoutLioSamLoc">
            <item>
             <widget class="QPushButton" name="btnStartLioSamLoc">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>40</height>
+              </size>
+             </property>
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -361,8 +393,21 @@ QPushButton:disabled {
            </item>
            <item>
             <widget class="QPushButton" name="btnStopLioSamLoc">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>40</height>
+              </size>
+             </property>
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+              </string>
              </property>
              <property name="text">
               <string>Stop Localization</string>
@@ -898,7 +943,162 @@ QPushButton {
         </item>
        </layout>
       </widget>
-      <!-- Tab 5: Custom Launch -->
+      <!-- Tab 5: KISS-ICP -->
+      <widget class="QWidget" name="tabKissIcp">
+       <attribute name="title">
+        <string>KISS-ICP</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutKissIcp">
+        <item>
+         <widget class="QGroupBox" name="kissIcpInfoGroup">
+          <property name="title">
+           <string>KISS-ICP (LiDAR Odometry)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutKissIcpInfo">
+           <item>
+            <widget class="QLabel" name="lblKissIcpInfo">
+             <property name="text">
+              <string>Keep It Small and Simple ICP - Fast and Accurate LiDAR Odometry</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #E91E63; font-weight: bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblKissIcpDesc">
+             <property name="text">
+              <string>• LiDAR-only odometry (no IMU required)
+• Real-time point cloud registration
+• Builds local map incrementally</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="kissIcpRunGroup">
+          <property name="title">
+           <string>Odometry / Mapping</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutKissIcpRunMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutKissIcpRun">
+             <item>
+              <widget class="QPushButton" name="btnStartKissIcp">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #E91E63;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start KISS-ICP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopKissIcp">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop KISS-ICP</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSaveKissIcpMap">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Save Map (PCD)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblKissIcpRunInfo">
+             <property name="text">
+              <string>Publishes odometry on /kiss_icp/odometry and builds point cloud map</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacerKissIcp">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <!-- Tab 6: Custom Launch -->
       <widget class="QWidget" name="tabCustom">
        <attribute name="title">
         <string>Custom</string>

@@ -115,8 +115,8 @@ public:
                 pub_->publish(createImu(imu_msg));
             }
         );
-        pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/imu/data", 10);
-        RCLCPP_INFO(get_logger(), "[NATS]dss.sensor.imu → [ROS2]/imu/data");
+        pub_ = this->create_publisher<sensor_msgs::msg::Imu>("/dss/sensor/imu", 10);
+        RCLCPP_INFO(get_logger(), "[NATS]dss.sensor.imu → [ROS2]/dss/sensor/imu");
     }
 
     ~DSSToROSIMUNode() override {

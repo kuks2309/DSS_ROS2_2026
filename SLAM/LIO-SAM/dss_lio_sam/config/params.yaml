@@ -3,8 +3,8 @@
     use_sim_time:  true
 
     # Topics
-    pointCloudTopic: "/points"                   # Point cloud data
-    imuTopic: "/imu/data"                        # IMU data
+    pointCloudTopic: "/dss/sensor/lidar3d"        # Point cloud data
+    imuTopic: "/dss/sensor/imu"                   # IMU data
     odomTopic: "odometry/imu"                    # IMU pre-preintegration odometry, same frequency as IMU
     gpsTopic: "odometry/gpsz"                    # GPS odometry topic from navsat, see module_navsat.launch file
 
