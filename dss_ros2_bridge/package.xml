@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>dss_ros2_bridge</name>
+  <version>1.0.0</version>
+  <description>DSS ROS2 Bridge</description>
+
+  <maintainer email="bkkim2004@naver.com">bkkim</maintainer>
+  <license>MIT</license>
+
+  <!-- Build tool -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Core dependencies -->
+  <depend>rclcpp</depend>
+
+  <!-- === 메시지 생성/사용을 위한 필수 의존성 === -->
+  <!-- msg 파일 생성 -->
+  <build_depend>rosidl_default_generators</build_depend>
+
+  <!-- 빌드된 msg를 실행 환경에서 사용 -->
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <!-- 인터페이스 패키지 그룹 등록 -->
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <!-- Lint -->
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,49 @@
+# ============================================================
+# KISS-ICP Configuration for DSS Platform (v0.3.0)
+# ============================================================
+# KISS-ICP is a LiDAR-only odometry system that does not require IMU
+
+odometry_node:
+  ros__parameters:
+    # ============================================================
+    # Frame Configuration
+    # ============================================================
+    base_frame: "base_link"
+    odom_frame: "odom"
+
+    # Publish odometry TF (odom -> base_link)
+    publish_odom_tf: true
+
+    # Publish visualization point clouds
+    visualize: true
+
+    # ============================================================
+    # KISS-ICP Parameters
+    # ============================================================
+    # Maximum range for valid points (meters)
+    max_range: 100.0
+
+    # Minimum range for valid points (meters)
+    min_range: 1.0
+
+    # Voxel size for downsampling (meters)
+    # Smaller = more accurate but slower
+    voxel_size: 1.0
+
+    # Maximum number of points per voxel
+    max_points_per_voxel: 20
+
+    # ============================================================
+    # Motion Compensation
+    # ============================================================
+    # Enable motion compensation (deskewing)
+    deskew: false
+
+    # ============================================================
+    # Adaptive Threshold Parameters
+    # ============================================================
+    # Initial threshold for adaptive ICP
+    initial_threshold: 2.0
+
+    # Minimum motion threshold
+    min_motion_th: 0.1
