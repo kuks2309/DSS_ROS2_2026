@@ -26,7 +26,7 @@ slam_toolbox:
     # Map File (set via launch argument)
     # ============================================================
     # map_file_name: will be set by launch file
-    map_start_at_dock: true  # Start at the first pose from saved map
+    map_start_at_dock: false  # false = allow /initialpose to set initial position
 
     # ============================================================
     # General Parameters (CRITICAL for scan matching)
@@ -44,20 +44,20 @@ slam_toolbox:
     minimum_travel_heading: 0.5
     scan_buffer_size: 20  # Larger buffer for localization
     scan_buffer_maximum_scan_distance: 15.0
-    link_match_minimum_response_fine: 0.1
+    link_match_minimum_response_fine: 0.01  # Lower threshold for easier scan matching
     link_scan_maximum_distance: 2.0
 
     # Disable loop closing in localization mode
     do_loop_closing: false
 
     # Throttle scans for large maps
-    throttle_scans: 2  # Process every 2nd scan
+    throttle_scans: 1  # Process every scan for faster matching
 
     # ============================================================
-    # Correlation Parameters (same as mapping)
+    # Correlation Parameters (optimized for speed)
     # ============================================================
-    correlation_search_space_dimension: 0.5
-    correlation_search_space_resolution: 0.01
+    correlation_search_space_dimension: 2.0  # ±1m search range (reduced for speed)
+    correlation_search_space_resolution: 0.02  # Coarser resolution for speed
     correlation_search_space_smear_deviation: 0.1
 
     # ============================================================

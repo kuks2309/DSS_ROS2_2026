@@ -10,7 +10,10 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from sensor_msgs.msg import PointCloud2, Imu, Image, NavSatFix
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from std_srvs.srv import Empty
 import time
+import threading
 
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import QTimer, QDateTime
@@ -86,6 +89,20 @@ class SlamLaunchManagerNode(Node):
             Image, '/dss/sensor/camera/rgb', self.camera_callback, sensor_qos)
         self.gps_sub = self.create_subscription(
             NavSatFix, '/dss/sensor/gps/fix', self.gps_callback, sensor_qos)
+
+        # Subscribe to /initialpose for automatic localization reset
+        initialpose_qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+        self.initialpose_sub = self.create_subscription(
+            PoseWithCovarianceStamped, '/initialpose', self.initialpose_callback, initialpose_qos)
+
+        # Service clients for localization reset
+        self.clear_localization_buffer_client = None
+        self.reset_odom_client = None
 
         self.get_logger().info('Launch Manager Node initialized')
 
@@ -347,6 +364,53 @@ exec {' '.join(cmd)}
 
     def gps_callback(self, msg):
         self.sensor_last_time['gps'] = time.time()
+
+    def initialpose_callback(self, msg):
+        """Handle /initialpose messages for automatic localization reset"""
+        # Check if SLAM-Toolbox localization is running
+        if not self.is_running('slamtoolbox_loc'):
+            return
+
+        self.get_logger().info(f'Received /initialpose: x={msg.pose.pose.position.x:.2f}, y={msg.pose.pose.position.y:.2f}')
+        self.ui.log(f'Received /initialpose: x={msg.pose.pose.position.x:.2f}, y={msg.pose.pose.position.y:.2f}')
+
+        # Call services in a separate thread to avoid blocking
+        def reset_localization():
+            try:
+                # 1. Clear SLAM-Toolbox localization buffer
+                if self.clear_localization_buffer_client is None:
+                    self.clear_localization_buffer_client = self.create_client(
+                        Empty, '/slam_toolbox/clear_localization_buffer')
+
+                if self.clear_localization_buffer_client.wait_for_service(timeout_sec=2.0):
+                    future = self.clear_localization_buffer_client.call_async(Empty.Request())
+                    self.get_logger().info('Called /slam_toolbox/clear_localization_buffer')
+                    self.ui.log('Cleared SLAM-Toolbox localization buffer')
+                else:
+                    self.get_logger().warn('clear_localization_buffer service not available')
+                    self.ui.log('Warning: clear_localization_buffer service not available')
+
+                # 2. Reset ICP odometry
+                if self.reset_odom_client is None:
+                    self.reset_odom_client = self.create_client(Empty, '/reset_odom')
+
+                if self.reset_odom_client.wait_for_service(timeout_sec=2.0):
+                    future = self.reset_odom_client.call_async(Empty.Request())
+                    self.get_logger().info('Called /reset_odom')
+                    self.ui.log('Reset ICP odometry')
+                else:
+                    self.get_logger().warn('reset_odom service not available')
+                    self.ui.log('Warning: reset_odom service not available')
+
+                self.ui.log('Localization reset complete - scan matching will start from new position')
+
+            except Exception as e:
+                self.get_logger().error(f'Error resetting localization: {e}')
+                self.ui.log(f'Error resetting localization: {e}')
+
+        # Run in separate thread
+        reset_thread = threading.Thread(target=reset_localization, daemon=True)
+        reset_thread.start()
 
     def get_sensor_status(self, sensor_name):
         """Check if sensor is active (received data within timeout)"""
