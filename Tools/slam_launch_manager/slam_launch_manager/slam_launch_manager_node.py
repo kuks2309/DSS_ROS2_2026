@@ -536,7 +536,8 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
 
     def on_start_dss(self):
         if self.node.launch_files['dss']:
-            if self.node.start_launch_file('dss', self.node.launch_files['dss']):
+            extra_args = ['use_sim_time:=true']
+            if self.node.start_launch_file('dss', self.node.launch_files['dss'], extra_args):
                 self.update_button_states()
         else:
             self.log("DSS launch file not configured!")
@@ -1004,12 +1005,29 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
     def on_save_slamtoolbox_map(self):
         """Save SLAM-Toolbox map using service call"""
         try:
+            # First check if the service exists
+            check_result = subprocess.run(
+                ['ros2', 'service', 'list'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+
+            if '/slam_toolbox/serialize_map' not in check_result.stdout:
+                self.log("Error: /slam_toolbox/serialize_map service not found!")
+                self.log("Make sure SLAM-Toolbox is running.")
+                QMessageBox.warning(self, "Error", "serialize_map service not found!\n\nMake sure SLAM-Toolbox is running.")
+                return
+
+            # Create default map directory if it doesn't exist
+            default_map_dir = Path.home() / "ros2_ws/map/slam_toolbox_map"
+            default_map_dir.mkdir(parents=True, exist_ok=True)
+
             # Open folder selection dialog
-            default_path = str(Path.home() / "ros2_ws/map/slam_toolbox_map")
             save_dir = QFileDialog.getExistingDirectory(
                 self,
                 "Select Directory to Save Map",
-                default_path,
+                str(default_map_dir),
                 QFileDialog.ShowDirsOnly
             )
 
@@ -1034,6 +1052,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             save_path = os.path.join(save_dir, map_name)
 
             self.log(f"Saving SLAM-Toolbox map to: {save_path}")
+            self.log("Calling serialize_map service...")
 
             # Call SLAM-Toolbox serialize_map service
             result = subprocess.run(
@@ -1042,17 +1061,42 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
                  f'{{"filename": "{save_path}"}}'],
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=60
             )
 
-            if result.returncode == 0:
-                self.log(f"SLAM-Toolbox map saved successfully to: {save_path}")
-                QMessageBox.information(self, "Success",
-                    f"Map saved successfully!\n\nLocation: {save_path}.posegraph\nand {save_path}.data")
-            else:
-                self.log(f"Failed to save map: {result.stderr}")
-                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr}")
+            self.log(f"Service call stdout: {result.stdout}")
+            if result.stderr:
+                self.log(f"Service call stderr: {result.stderr}")
 
+            # Check result - RESULT_SUCCESS=0, RESULT_FAILED_TO_WRITE_FILE=255
+            if result.returncode == 0 and 'result=0' in result.stdout:
+                # Verify files were created
+                posegraph_file = f"{save_path}.posegraph"
+                data_file = f"{save_path}.data"
+
+                if os.path.exists(posegraph_file) and os.path.exists(data_file):
+                    posegraph_size = os.path.getsize(posegraph_file)
+                    data_size = os.path.getsize(data_file)
+                    self.log(f"SLAM-Toolbox map saved successfully!")
+                    self.log(f"  - {posegraph_file} ({posegraph_size} bytes)")
+                    self.log(f"  - {data_file} ({data_size} bytes)")
+                    QMessageBox.information(self, "Success",
+                        f"Map saved successfully!\n\nFiles:\n- {posegraph_file}\n- {data_file}")
+                else:
+                    self.log(f"Warning: Service returned success but files not found")
+                    QMessageBox.warning(self, "Warning",
+                        f"Service returned success but map files were not found.\n\nExpected:\n- {posegraph_file}\n- {data_file}")
+            elif result.returncode == 0 and 'result=255' in result.stdout:
+                self.log(f"Failed to save map: Could not write to file")
+                QMessageBox.warning(self, "Error",
+                    f"Failed to write map file.\n\nCheck that the directory exists and is writable:\n{save_dir}")
+            else:
+                self.log(f"Failed to save map: {result.stderr if result.stderr else result.stdout}")
+                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr if result.stderr else 'Unknown error'}")
+
+        except subprocess.TimeoutExpired:
+            self.log("Map save timed out - service call took too long")
+            QMessageBox.warning(self, "Timeout", "Map save operation timed out.\n\nThe map might be too large or the service is not responding.")
         except Exception as e:
             self.log(f"Failed to save map: {str(e)}")
             QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
