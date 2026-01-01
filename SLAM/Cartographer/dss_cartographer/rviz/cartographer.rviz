@@ -37,6 +37,14 @@ Visualization Manager:
         Value: /map
         Depth: 5
         Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Filter size: 10
+      Update Topic:
+        Value: ""
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
         Reliability Policy: Reliable
       Alpha: 0.7
       Color Scheme: map
@@ -98,7 +106,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 50
+      Distance: 100
       Enable Stereo Rendering:
         Value: false
       Focal Point:
@@ -110,10 +118,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.0
-      Target Frame: <Fixed Frame>
+      Pitch: 1.5708
+      Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 0.5
+      Yaw: 0
     Saved: ~
 
 Window Geometry:

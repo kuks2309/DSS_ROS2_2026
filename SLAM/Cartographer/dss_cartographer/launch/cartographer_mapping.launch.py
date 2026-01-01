@@ -20,20 +20,22 @@ def generate_launch_description():
     rviz_config_path = str(Path.home() / 'ros2_ws/src/SLAM/Cartographer/dss_cartographer/rviz/cartographer.rviz')
 
     # Launch arguments
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     rviz = LaunchConfiguration('rviz', default='true')
 
     # PointCloud to LaserScan converter
     # DSS uses 3D LiDAR, Cartographer 2D needs LaserScan
+    # Note: LiDAR is at z=1.5m, so ground is at z=-1.5m relative to lidar_link
+    # We extract a horizontal slice around the lidar height for 2D mapping
     pointcloud_to_laserscan = Node(
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
         name='pointcloud_to_laserscan',
         parameters=[{
-            'target_frame': 'base_link',
-            'transform_tolerance': 0.01,
-            'min_height': -0.5,
-            'max_height': 1.0,
+            'target_frame': 'lidar_link',
+            'transform_tolerance': 0.1,
+            'min_height': -1.0,   # 1m below lidar (obstacles at ground level)
+            'max_height': 0.5,    # 0.5m above lidar
             'angle_min': -3.14159,
             'angle_max': 3.14159,
             'angle_increment': 0.00436,  # ~0.25 degrees
@@ -45,12 +47,12 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
         }],
         remappings=[
-            ('cloud_in', '/dss/sensor/lidar'),
+            ('cloud_in', '/dss/sensor/lidar3d'),
             ('scan', '/scan'),
         ]
     )
 
-    # Static transform: base_link -> lidar
+    # Static transform: base_link -> lidar_link
     static_tf_base_to_lidar = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -63,8 +65,9 @@ def generate_launch_description():
             '--pitch', '0.0',
             '--yaw', '0.0',
             '--frame-id', 'base_link',
-            '--child-frame-id', 'lidar'
-        ]
+            '--child-frame-id', 'lidar_link'
+        ],
+        parameters=[{'use_sim_time': use_sim_time}]
     )
 
     # Cartographer node
@@ -107,7 +110,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        DeclareLaunchArgument('use_sim_time', default_value='false'),
+        DeclareLaunchArgument('use_sim_time', default_value='true'),
         DeclareLaunchArgument('rviz', default_value='true'),
 
         static_tf_base_to_lidar,
