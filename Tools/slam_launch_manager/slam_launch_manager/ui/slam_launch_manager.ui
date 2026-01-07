@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Livox LIO-SAM Launch Manager</string>
+   <string>DSS SLAM Launch Manager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="mainLayout">
@@ -25,7 +25,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Livox MID-360 LIO-SAM Manager</string>
+       <string>DSS SLAM Launch Manager</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -156,283 +156,7 @@ QPushButton {
         </item>
        </layout>
       </widget>
-      <!-- Tab 1: Livox MID-360 -->
-      <widget class="QWidget" name="tabLivox">
-       <attribute name="title">
-        <string>Livox MID-360</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="layoutLivox">
-        <item>
-         <widget class="QGroupBox" name="livoxControlGroup">
-          <property name="title">
-           <string>Livox MID-360 LiDAR Driver (Required for SLAM)</string>
-          </property>
-          <layout class="QVBoxLayout" name="layoutLivoxControl">
-           <item>
-            <layout class="QHBoxLayout" name="layoutLivoxButtons">
-             <item>
-              <widget class="QPushButton" name="btnStartLivox">
-               <property name="styleSheet">
-                <string notr="true">
-QPushButton {
-    background-color: #2196F3;
-    color: white;
-    font-weight: bold;
-    padding: 10px;
-}
-QPushButton:disabled {
-    background-color: #cccccc;
-    color: #666666;
-}
-                </string>
-               </property>
-               <property name="text">
-                <string>Start Livox Driver</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnStopLivox">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">
-QPushButton {
-    padding: 10px;
-}
-                </string>
-               </property>
-               <property name="text">
-                <string>Stop Livox Driver</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QLabel" name="lblLivoxInfo">
-             <property name="text">
-              <string>Launches livox_ros_driver2 for Livox MID-360</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">color: #666666;</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacerLivox">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <!-- Tab 2: LIO-SAM -->
-      <widget class="QWidget" name="tabLioSam">
-       <attribute name="title">
-        <string>LIO-SAM</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="layoutLioSam">
-        <item>
-         <widget class="QGroupBox" name="liosamInfoGroup">
-          <property name="title">
-           <string>LIO-SAM (LiDAR + IMU SLAM)</string>
-          </property>
-          <layout class="QVBoxLayout" name="layoutLioSamInfo">
-           <item>
-            <widget class="QLabel" name="lblLioSamInfo">
-             <property name="text">
-              <string>3D LiDAR-Inertial Odometry via Smoothing and Mapping</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">color: #4CAF50; font-weight: bold;</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="liosamSlamGroup">
-          <property name="title">
-           <string>SLAM Mode (Mapping)</string>
-          </property>
-          <layout class="QHBoxLayout" name="layoutLioSamSlam">
-           <item>
-            <widget class="QPushButton" name="btnStartLioSam">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">
-QPushButton {
-    background-color: #9C27B0;
-    color: white;
-    font-weight: bold;
-    padding: 10px;
-}
-QPushButton:disabled {
-    background-color: #cccccc;
-    color: #666666;
-}
-              </string>
-             </property>
-             <property name="text">
-              <string>Start SLAM</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnStopLioSam">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">
-QPushButton {
-    padding: 10px;
-}
-              </string>
-             </property>
-             <property name="text">
-              <string>Stop SLAM</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnSaveLioSamMap">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">
-QPushButton {
-    background-color: #4CAF50;
-    color: white;
-    font-weight: bold;
-    padding: 10px;
-}
-QPushButton:disabled {
-    background-color: #cccccc;
-    color: #666666;
-}
-              </string>
-             </property>
-             <property name="text">
-              <string>Save Map</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="liosamLocGroup">
-          <property name="title">
-           <string>Localization Mode</string>
-          </property>
-          <layout class="QHBoxLayout" name="layoutLioSamLoc">
-           <item>
-            <widget class="QPushButton" name="btnStartLioSamLoc">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">
-QPushButton {
-    background-color: #FF9800;
-    color: white;
-    font-weight: bold;
-    padding: 10px;
-}
-QPushButton:disabled {
-    background-color: #cccccc;
-    color: #666666;
-}
-              </string>
-             </property>
-             <property name="text">
-              <string>Start Localization</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnStopLioSamLoc">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">
-QPushButton {
-    padding: 10px;
-}
-              </string>
-             </property>
-             <property name="text">
-              <string>Stop Localization</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacerLioSam">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <!-- Tab 3: DSS LIO-SAM -->
+      <!-- Tab 1: DSS LIO-SAM -->
       <widget class="QWidget" name="tabDssLioSam">
        <attribute name="title">
         <string>DSS LIO-SAM</string>
@@ -1098,7 +822,266 @@ QPushButton:disabled {
         </item>
        </layout>
       </widget>
-      <!-- Tab 6: SLAM-Toolbox -->
+      <!-- Tab 6: HDL Graph SLAM -->
+      <widget class="QWidget" name="tabHdl">
+       <attribute name="title">
+        <string>HDL</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutHdl">
+        <item>
+         <widget class="QGroupBox" name="hdlInfoGroup">
+          <property name="title">
+           <string>HDL Graph SLAM (3D LiDAR SLAM)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutHdlInfo">
+           <item>
+            <widget class="QLabel" name="lblHdlInfo">
+             <property name="text">
+              <string>3D LiDAR SLAM with Graph Optimization and Loop Closure</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #009688; font-weight: bold;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblHdlDesc">
+             <property name="text">
+              <string>• NDT/GICP scan matching
+• Graph-based optimization (g2o)
+• Loop closure detection</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="hdlSlamGroup">
+          <property name="title">
+           <string>SLAM Mode (Mapping)</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutHdlSlamMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutHdlSlam">
+             <item>
+              <widget class="QPushButton" name="btnStartHdlSlam">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #009688;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start HDL SLAM</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopHdlSlam">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop HDL SLAM</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSaveHdlMap">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Save Map (PCD)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblHdlSlamInfo">
+             <property name="text">
+              <string>Saves map as PCD point cloud file</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="hdlLocGroup">
+          <property name="title">
+           <string>Localization Mode</string>
+          </property>
+          <layout class="QVBoxLayout" name="layoutHdlLocMain">
+           <item>
+            <layout class="QHBoxLayout" name="layoutHdlMapSelect">
+             <item>
+              <widget class="QLabel" name="lblHdlMap">
+               <property name="text">
+                <string>Map:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="txtHdlMapPath">
+               <property name="placeholderText">
+                <string>Select PCD map file...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnBrowseHdlMap">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Browse</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="layoutHdlLoc">
+             <item>
+              <widget class="QPushButton" name="btnStartHdlLoc">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    background-color: #FF9800;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+}
+QPushButton:disabled {
+    background-color: #cccccc;
+    color: #666666;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Start Localization</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnStopHdlLoc">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">
+QPushButton {
+    padding: 10px;
+}
+                </string>
+               </property>
+               <property name="text">
+                <string>Stop Localization</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblHdlLocInfo">
+             <property name="text">
+              <string>Use RViz 2D Pose Estimate to set initial position</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: #666666;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacerHdl">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <!-- Tab 7: SLAM-Toolbox -->
       <widget class="QWidget" name="tabSlamToolbox">
        <attribute name="title">
         <string>SLAM-Toolbox</string>

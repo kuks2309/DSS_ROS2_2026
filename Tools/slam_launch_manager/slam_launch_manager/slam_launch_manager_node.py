@@ -28,16 +28,15 @@ class SlamLaunchManagerNode(Node):
         # Dictionary to store running processes
         self.processes = {
             'dss': None,
-            'livox': None,
             'rtabmap': None,
             'rtabmap_loc': None,
-            'liosam': None,
-            'liosam_loc': None,
             'dss_lio_sam': None,
             'dss_lio_sam_loc': None,
             'kissicp': None,
             'slamtoolbox': None,
             'slamtoolbox_loc': None,
+            'hdl_slam': None,
+            'hdl_loc': None,
             'localization': None,
             'custom': None
         }
@@ -45,16 +44,15 @@ class SlamLaunchManagerNode(Node):
         # Store launch file paths
         self.launch_files = {
             'dss': None,  # DSS ROS2 Bridge
-            'livox': None,  # Livox MID-360 driver
             'rtabmap': None,  # RTAB-MAP SLAM mode
             'rtabmap_loc': None,  # RTAB-MAP Localization mode
-            'liosam': None,  # LIO-SAM SLAM mode
-            'liosam_loc': None,  # LIO-SAM Localization mode
             'dss_lio_sam': None,  # DSS LIO-SAM for simulation
             'dss_lio_sam_loc': None,  # DSS LIO-SAM Localization mode
             'kissicp': None,  # Will be set from config or UI
             'slamtoolbox': None,  # Will be set from config or UI
             'slamtoolbox_loc': None,  # Will be set from config or UI
+            'hdl_slam': None,  # HDL Graph SLAM
+            'hdl_loc': None,  # HDL Localization
             'localization': None,  # Will be set from config or UI
             'custom': None
         }
@@ -449,15 +447,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStartDSS.clicked.connect(self.on_start_dss)
         self.btnStopDSS.clicked.connect(self.on_stop_dss)
 
-        # Connect buttons - Livox
-        self.btnStartLivox.clicked.connect(self.on_start_livox)
-        self.btnStopLivox.clicked.connect(self.on_stop_livox)
-
-        self.btnStartLioSam.clicked.connect(self.on_start_liosam)
-        self.btnStopLioSam.clicked.connect(self.on_stop_liosam)
-        self.btnSaveLioSamMap.clicked.connect(self.on_save_liosam_map)
-        self.btnStartLioSamLoc.clicked.connect(self.on_start_liosam_loc)
-        self.btnStopLioSamLoc.clicked.connect(self.on_stop_liosam_loc)
+        # Livox and LIO-SAM tabs removed (DSS-only environment)
 
         self.btnStartDssLioSam.clicked.connect(self.on_start_dss_lio_sam)
         self.btnStopDssLioSam.clicked.connect(self.on_stop_dss_lio_sam)
@@ -491,6 +481,14 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         self.btnStartSlamToolboxLoc.clicked.connect(self.on_start_slamtoolbox_loc)
         self.btnStopSlamToolboxLoc.clicked.connect(self.on_stop_slamtoolbox_loc)
 
+        # Connect buttons - HDL Graph SLAM
+        self.btnStartHdlSlam.clicked.connect(self.on_start_hdl_slam)
+        self.btnStopHdlSlam.clicked.connect(self.on_stop_hdl_slam)
+        self.btnSaveHdlMap.clicked.connect(self.on_save_hdl_map)
+        self.btnBrowseHdlMap.clicked.connect(self.on_browse_hdl_map)
+        self.btnStartHdlLoc.clicked.connect(self.on_start_hdl_loc)
+        self.btnStopHdlLoc.clicked.connect(self.on_stop_hdl_loc)
+
         self.btnStartCustom.clicked.connect(self.on_start_custom)
         self.btnStopCustom.clicked.connect(self.on_stop_custom)
         self.btnBrowse.clicked.connect(self.on_browse)
@@ -519,31 +517,6 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
     def auto_detect_launch_files(self):
         """Auto-detect launch files in the workspace"""
         home = Path.home()
-        workspace = home / 'parking_robot_ros2_ws' / 'src'
-
-        # Look for Livox MID-360 launch file
-        livox_launch = home / 'ws_livox' / 'install' / 'livox_ros_driver2' / 'share' / 'livox_ros_driver2' / 'launch_ROS2' / 'msg_MID360_launch.py'
-        if livox_launch.exists():
-            self.node.launch_files['livox'] = str(livox_launch)
-            self.log(f"Found Livox MID-360 launch: {livox_launch}")
-
-        # Look for LIO-SAM SLAM launch file
-        liosam_launch = workspace / 'SLAM' / 'LIO-SAM' / 'livox_lio_sam' / 'launch' / 'run_slam.launch.py'
-        if liosam_launch.exists():
-            self.node.launch_files['liosam'] = str(liosam_launch)
-            self.log(f"Found LIO-SAM SLAM launch: {liosam_launch}")
-
-        # Look for LIO-SAM Localization launch file
-        liosam_loc_launch = workspace / 'SLAM' / 'LIO-SAM' / 'livox_lio_sam' / 'launch' / 'run_localization.launch.py'
-        if liosam_loc_launch.exists():
-            self.node.launch_files['liosam_loc'] = str(liosam_loc_launch)
-            self.log(f"Found LIO-SAM Localization launch: {liosam_loc_launch}")
-
-        # Look for RTAB-Map SLAM launch file
-        rtabmap_launch = workspace / 'SLAM' / 'rtab_map' / 'livox_rtabmap_slam' / 'launch' / 'rtabmap_with_rviz.launch.py'
-        if rtabmap_launch.exists():
-            self.node.launch_files['rtabmap'] = str(rtabmap_launch)
-            self.log(f"Found RTAB-Map launch: {rtabmap_launch}")
 
         # Look for DSS ROS2 Bridge launch file
         dss_workspace = home / 'ros2_ws' / 'src'
@@ -593,6 +566,17 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.node.launch_files['slamtoolbox_loc'] = str(dss_slamtoolbox_loc_launch)
             self.log(f"Found DSS SLAM-Toolbox Localization launch: {dss_slamtoolbox_loc_launch}")
 
+        # Look for HDL Graph SLAM launch files
+        hdl_slam_launch = dss_workspace / 'SLAM' / 'HDL' / 'hdl_graph_slam_ros2' / 'launch' / 'hdl_graph_slam.launch.py'
+        if hdl_slam_launch.exists():
+            self.node.launch_files['hdl_slam'] = str(hdl_slam_launch)
+            self.log(f"Found HDL Graph SLAM launch: {hdl_slam_launch}")
+
+        hdl_loc_launch = dss_workspace / 'SLAM' / 'HDL' / 'hdl_localization_ros2' / 'hdl_localization' / 'launch' / 'hdl_localization.launch.py'
+        if hdl_loc_launch.exists():
+            self.node.launch_files['hdl_loc'] = str(hdl_loc_launch)
+            self.log(f"Found HDL Localization launch: {hdl_loc_launch}")
+
     def log(self, message):
         """Add message to log"""
         timestamp = QDateTime.currentDateTime().toString("hh:mm:ss")
@@ -609,97 +593,6 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
 
     def on_stop_dss(self):
         if self.node.stop_launch_file('dss'):
-            self.update_button_states()
-
-    def on_start_livox(self):
-        if self.node.launch_files['livox']:
-            if self.node.start_launch_file('livox', self.node.launch_files['livox']):
-                self.update_button_states()
-        else:
-            self.log("Livox MID-360 launch file not configured!")
-            QMessageBox.warning(self, "Error", "Livox MID-360 launch file not found!\nPlease install livox_ros_driver2.")
-
-    def on_stop_livox(self):
-        if self.node.stop_launch_file('livox'):
-            self.update_button_states()
-
-    def on_start_liosam(self):
-        if self.node.launch_files['liosam']:
-            if self.node.start_launch_file('liosam', self.node.launch_files['liosam']):
-                self.update_button_states()
-        else:
-            self.log("LIO-SAM SLAM launch file not configured!")
-            QMessageBox.warning(self, "Error", "LIO-SAM SLAM launch file not found!")
-
-    def on_stop_liosam(self):
-        if self.node.stop_launch_file('liosam'):
-            self.update_button_states()
-
-    def on_save_liosam_map(self):
-        """Save LIO-SAM map using service call with folder selection"""
-        try:
-            # Open folder selection dialog
-            default_path = str(Path.home() / "parking_robot_ros2_ws/src/SLAM/LIO-SAM/livox_lio_sam/map")
-            save_dir = QFileDialog.getExistingDirectory(
-                self,
-                "Select Directory to Save Map",
-                default_path,
-                QFileDialog.ShowDirsOnly
-            )
-
-            if not save_dir:
-                self.log("Map save cancelled by user")
-                return
-
-            # Ask for map name
-            from PyQt5.QtWidgets import QInputDialog
-            map_name, ok = QInputDialog.getText(
-                self,
-                "Map Name",
-                "Enter map name (without extension):",
-                text="livox_map"
-            )
-
-            if not ok or not map_name:
-                self.log("Map save cancelled by user")
-                return
-
-            # Full save path
-            save_path = os.path.join(save_dir, map_name)
-
-            self.log(f"Saving map to: {save_path}")
-
-            import subprocess
-            result = subprocess.run(
-                ['ros2', 'service', 'call', '/lio_sam/save_map',
-                 'livox_lio_sam/srv/SaveMap',
-                 f'{{"resolution": 0.2, "destination": "{save_path}"}}'],
-                capture_output=True,
-                text=True,
-                timeout=60
-            )
-
-            if result.returncode == 0:
-                self.log(f"LIO-SAM map saved successfully to: {save_path}")
-                QMessageBox.information(self, "Success", f"Map saved successfully!\n\nLocation: {save_path}")
-            else:
-                self.log(f"Failed to save map: {result.stderr}")
-                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr}")
-
-        except Exception as e:
-            self.log(f"Failed to save map: {str(e)}")
-            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
-
-    def on_start_liosam_loc(self):
-        if self.node.launch_files['liosam_loc']:
-            if self.node.start_launch_file('liosam_loc', self.node.launch_files['liosam_loc']):
-                self.update_button_states()
-        else:
-            self.log("LIO-SAM Localization launch file not configured!")
-            QMessageBox.warning(self, "Error", "LIO-SAM Localization launch file not found!")
-
-    def on_stop_liosam_loc(self):
-        if self.node.stop_launch_file('liosam_loc'):
             self.update_button_states()
 
     def on_start_dss_lio_sam(self):
@@ -1210,6 +1103,140 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         if self.node.stop_launch_file('slamtoolbox_loc'):
             self.update_button_states()
 
+    def on_start_hdl_slam(self):
+        """Start HDL Graph SLAM"""
+        if self.node.launch_files.get('hdl_slam'):
+            if self.node.start_launch_file('hdl_slam', self.node.launch_files['hdl_slam']):
+                self.log("Started HDL Graph SLAM")
+                self.update_button_states()
+        else:
+            self.log("HDL Graph SLAM launch file not found!")
+            QMessageBox.warning(self, "Error", "HDL Graph SLAM launch file not found!")
+
+    def on_stop_hdl_slam(self):
+        """Stop HDL Graph SLAM"""
+        if self.node.stop_launch_file('hdl_slam'):
+            self.update_button_states()
+
+    def on_save_hdl_map(self):
+        """Save HDL Graph SLAM map using service call"""
+        try:
+            # First check if the service exists
+            check_result = subprocess.run(
+                ['ros2', 'service', 'list'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+
+            if '/hdl_graph_slam/save_map' not in check_result.stdout:
+                self.log("Error: /hdl_graph_slam/save_map service not found!")
+                self.log("Make sure HDL Graph SLAM is running.")
+                QMessageBox.warning(self, "Error", "save_map service not found!\n\nMake sure HDL Graph SLAM is running.")
+                return
+
+            # Create default map directory if it doesn't exist
+            default_map_dir = Path.home() / "ros2_ws/src/SLAM/HDL/hdl_graph_slam_ros2/map"
+            default_map_dir.mkdir(parents=True, exist_ok=True)
+
+            # Open folder selection dialog
+            save_dir = QFileDialog.getExistingDirectory(
+                self,
+                "Select Directory to Save Map",
+                str(default_map_dir),
+                QFileDialog.ShowDirsOnly
+            )
+
+            if not save_dir:
+                self.log("Map save cancelled by user")
+                return
+
+            # Generate timestamped folder name
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            map_folder = f"map_21_{timestamp}"
+            full_save_dir = os.path.join(save_dir, map_folder)
+            os.makedirs(full_save_dir, exist_ok=True)
+
+            # Full save path (including map.pcd filename)
+            save_path = os.path.join(full_save_dir, "map.pcd")
+
+            self.log(f"Saving HDL map to: {save_path}")
+            self.log("Calling save_map service...")
+
+            # Call HDL Graph SLAM save_map service
+            result = subprocess.run(
+                ['ros2', 'service', 'call', '/hdl_graph_slam/save_map',
+                 'hdl_graph_slam/srv/SaveMap',
+                 f'{{"utm": false, "resolution": 0.05, "destination": "{save_path}"}}'],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+
+            self.log(f"Service call stdout: {result.stdout}")
+            if result.stderr:
+                self.log(f"Service call stderr: {result.stderr}")
+
+            if result.returncode == 0 and 'success=True' in result.stdout:
+                self.log(f"HDL map saved successfully to: {save_path}")
+                QMessageBox.information(self, "Success", f"Map saved successfully!\n\nLocation: {save_path}")
+            elif result.returncode == 0:
+                self.log(f"Map save completed: {result.stdout}")
+                QMessageBox.information(self, "Complete", f"Map save completed.\n\nCheck: {save_path}")
+            else:
+                self.log(f"Failed to save map: {result.stderr}")
+                QMessageBox.warning(self, "Error", f"Failed to save map:\n{result.stderr}")
+
+        except subprocess.TimeoutExpired:
+            self.log("Map save timed out - service call took too long")
+            QMessageBox.warning(self, "Timeout", "Map save operation timed out.")
+        except Exception as e:
+            self.log(f"Failed to save map: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to save map:\n{str(e)}")
+
+    def on_browse_hdl_map(self):
+        """Browse for HDL map PCD file"""
+        default_path = str(Path.home() / "ros2_ws/src/SLAM/HDL/hdl_graph_slam_ros2/map")
+        map_file, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select HDL Map File",
+            default_path,
+            "PCD Files (*.pcd);;All Files (*)"
+        )
+        if map_file:
+            self.txtHdlMapPath.setText(map_file)
+            self.log(f"Selected HDL map: {map_file}")
+
+    def on_start_hdl_loc(self):
+        """Start HDL Localization"""
+        map_file = self.txtHdlMapPath.text()
+        if not map_file:
+            self.log("Please select a map file first!")
+            QMessageBox.warning(self, "Error", "Please select a map file first!")
+            return
+
+        if not os.path.exists(map_file):
+            self.log(f"Map file not found: {map_file}")
+            QMessageBox.warning(self, "Error", f"Map file not found:\n{map_file}")
+            return
+
+        if self.node.launch_files.get('hdl_loc'):
+            # HDL Localization uses params.yaml for map path, so we need to update it
+            # For now, just launch and user can configure params.yaml manually
+            if self.node.start_launch_file('hdl_loc', self.node.launch_files['hdl_loc']):
+                self.log(f"Started HDL Localization")
+                self.log(f"Note: Set initial pose in RViz using '2D Pose Estimate'")
+                self.update_button_states()
+        else:
+            self.log("HDL Localization launch file not found!")
+            QMessageBox.warning(self, "Error", "HDL Localization launch file not found!")
+
+    def on_stop_hdl_loc(self):
+        """Stop HDL Localization"""
+        if self.node.stop_launch_file('hdl_loc'):
+            self.update_button_states()
+
     def on_start_custom(self):
         custom_path = self.txtLaunchFile.text()
         if custom_path:
@@ -1300,33 +1327,7 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
         else:
             self.btnStartDSS.setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
 
-        # Livox MID-360
-        livox_running = self.node.is_running('livox')
-        self.btnStartLivox.setEnabled(not livox_running)
-        self.btnStopLivox.setEnabled(livox_running)
-        if livox_running:
-            self.btnStartLivox.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
-        else:
-            self.btnStartLivox.setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
-
-        # LIO-SAM SLAM
-        liosam_running = self.node.is_running('liosam')
-        liosam_loc_running = self.node.is_running('liosam_loc')
-        self.btnStartLioSam.setEnabled(livox_running and not liosam_running and not liosam_loc_running)
-        self.btnStopLioSam.setEnabled(liosam_running)
-        self.btnSaveLioSamMap.setEnabled(liosam_running)
-        if liosam_running:
-            self.btnStartLioSam.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
-        else:
-            self.btnStartLioSam.setStyleSheet("QPushButton { background-color: #9C27B0; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
-
-        # LIO-SAM Localization
-        self.btnStartLioSamLoc.setEnabled(livox_running and not liosam_loc_running and not liosam_running)
-        self.btnStopLioSamLoc.setEnabled(liosam_loc_running)
-        if liosam_loc_running:
-            self.btnStartLioSamLoc.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
-        else:
-            self.btnStartLioSamLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+        # Livox MID-360 and LIO-SAM tabs removed (DSS-only environment)
 
         # DSS LIO-SAM (for simulation - requires DSS Bridge)
         dss_lio_sam_running = self.node.is_running('dss_lio_sam')
@@ -1394,6 +1395,25 @@ class SlamLaunchManagerUI(QtWidgets.QMainWindow):
             self.btnStartSlamToolboxLoc.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
         else:
             self.btnStartSlamToolboxLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
+        # HDL Graph SLAM (requires DSS Bridge for simulation)
+        hdl_slam_running = self.node.is_running('hdl_slam')
+        hdl_loc_running = self.node.is_running('hdl_loc')
+        self.btnStartHdlSlam.setEnabled(dss_running and not hdl_slam_running and not hdl_loc_running)
+        self.btnStopHdlSlam.setEnabled(hdl_slam_running)
+        self.btnSaveHdlMap.setEnabled(hdl_slam_running)
+        if hdl_slam_running:
+            self.btnStartHdlSlam.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartHdlSlam.setStyleSheet("QPushButton { background-color: #009688; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
+
+        # HDL Localization
+        self.btnStartHdlLoc.setEnabled(dss_running and not hdl_loc_running and not hdl_slam_running)
+        self.btnStopHdlLoc.setEnabled(hdl_loc_running)
+        if hdl_loc_running:
+            self.btnStartHdlLoc.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; }")
+        else:
+            self.btnStartHdlLoc.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; padding: 10px; } QPushButton:disabled { background-color: #cccccc; color: #666666; }")
 
         # Custom
         custom_running = self.node.is_running('custom')
